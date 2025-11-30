@@ -6,6 +6,20 @@ import StarRatingDisplay from '@/components/StarRatingDisplay'
 
 export const dynamic = 'force-dynamic'
 
+type Company = {
+  id: string
+  name: string
+  description: string | null
+  website: string | null
+  location: string | null
+  industry: string | null
+  company_size: string | null
+  verified: boolean
+  average_rating: number | null
+  total_ratings: number | null
+  created_at: string
+}
+
 export default async function CompanyDetailsPage({
   params,
 }: {
@@ -24,6 +38,8 @@ export default async function CompanyDetailsPage({
   if (error || !company) {
     notFound()
   }
+
+  const typedCompany = company as Company
 
   // Fetch related statistics
   const [jobsResult, reportsResult, employersResult] = await Promise.all([
@@ -70,9 +86,9 @@ export default async function CompanyDetailsPage({
               <Building className="w-8 h-8 text-slate-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">{company.name}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">{typedCompany.name}</h2>
               <div className="flex items-center gap-2">
-                {company.verified ? (
+                {typedCompany.verified ? (
                   <span className="badge badge-green text-sm">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Verified
@@ -99,51 +115,51 @@ export default async function CompanyDetailsPage({
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Basic Information</h3>
             
-            {company.industry && (
+            {typedCompany.industry && (
               <div>
                 <p className="text-sm text-slate-500 mb-1">Industry</p>
-                <p className="text-slate-900">{company.industry}</p>
+                <p className="text-slate-900">{typedCompany.industry}</p>
               </div>
             )}
 
-            {company.company_size && (
+            {typedCompany.company_size && (
               <div>
                 <p className="text-sm text-slate-500 mb-1">Company Size</p>
-                <p className="text-slate-900">{company.company_size} employees</p>
+                <p className="text-slate-900">{typedCompany.company_size} employees</p>
               </div>
             )}
 
-            {company.location && (
+            {typedCompany.location && (
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-slate-400 mt-1" />
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Location</p>
-                  <p className="text-slate-900">{company.location}</p>
+                  <p className="text-slate-900">{typedCompany.location}</p>
                 </div>
               </div>
             )}
 
-            {company.website && (
+            {typedCompany.website && (
               <div className="flex items-start gap-2">
                 <Globe className="w-4 h-4 text-slate-400 mt-1" />
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Website</p>
                   <a 
-                    href={company.website} 
+                    href={typedCompany.website} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-sky-500 hover:underline"
                   >
-                    {company.website}
+                    {typedCompany.website}
                   </a>
                 </div>
               </div>
             )}
 
-            {company.description && (
+            {typedCompany.description && (
               <div>
                 <p className="text-sm text-slate-500 mb-1">Description</p>
-                <p className="text-slate-900 text-sm">{company.description}</p>
+                <p className="text-slate-900 text-sm">{typedCompany.description}</p>
               </div>
             )}
           </div>
@@ -178,10 +194,10 @@ export default async function CompanyDetailsPage({
               </div>
 
               <div className="p-4 bg-slate-50 rounded-lg">
-                {company.average_rating ? (
+                {typedCompany.average_rating ? (
                   <StarRatingDisplay
-                    rating={company.average_rating}
-                    totalRatings={company.total_ratings || 0}
+                    rating={typedCompany.average_rating}
+                    totalRatings={typedCompany.total_ratings || 0}
                     size="sm"
                   />
                 ) : (
@@ -195,7 +211,7 @@ export default async function CompanyDetailsPage({
 
             <div>
               <p className="text-sm text-slate-500 mb-1">Created</p>
-              <p className="text-slate-900">{new Date(company.created_at).toLocaleDateString()}</p>
+              <p className="text-slate-900">{new Date(typedCompany.created_at).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
