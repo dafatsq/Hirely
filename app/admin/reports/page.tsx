@@ -1,3 +1,4 @@
+// Admin Reports Page - Company fraud reports management
 import { createAdminClient } from '@/lib/supabase/admin'
 import ReportActions from '@/components/ReportActions'
 
