@@ -39,7 +39,7 @@ export async function PUT(
     const adminClient = createAdminClient()
     const { data, error } = await adminClient
       .from('companies')
-      .update({ verified })
+      .update({ verified } as { verified: boolean })
       .eq('id', id)
       .select()
       .single()
