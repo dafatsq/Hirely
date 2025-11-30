@@ -159,6 +159,7 @@ export default async function AdminReportsPage({
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
               {typedReports && typedReports.length > 0 ? (
+                // Explicitly type the report parameter to avoid TypeScript inference issues
                 typedReports.map((report: Report) => {
                   type CompanyRecordLocal = { id: string; name: string | null } | null
                   type ApplicationRecordLocal = { 

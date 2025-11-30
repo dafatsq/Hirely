@@ -12,10 +12,9 @@ export async function POST(request: Request) {
     const adminClient = createAdminClient()
 
     // Fetch all ratings for this company
-    type RatingRow = { rating: number }
-
+    // @ts-expect-error - Supabase admin client type inference issue
     const { data: ratings, error: ratingsError } = await adminClient
-      .from<RatingRow>('company_ratings')
+      .from('company_ratings')
       .select('rating')
       .eq('company_id', companyId)
 
