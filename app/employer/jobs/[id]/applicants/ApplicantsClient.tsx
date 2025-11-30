@@ -103,30 +103,6 @@ export default function ApplicantsClientPage() {
     setFilteredApplicants(filtered)
   }, [searchQuery, statusFilter, applicants])
 
-  async function fetchApplicants() {
-    setIsLoading(true)
-    try {
-      const res = await fetch(`/api/employer/jobs/${jobId}/applicants`)
-      if (!res.ok) {
-        if (res.status === 403) {
-          alert("You are not authorized to view these applicants")
-          router.push("/")
-          return
-        }
-        throw new Error("Failed to fetch applicants")
-      }
-      const data = await res.json()
-      console.log('Applicants API response:', data) // Debug log
-      setApplicants(data.applications || [])
-      setFilteredApplicants(data.applications || [])
-    } catch (error) {
-      console.error("Error fetching applicants:", error)
-      alert("Failed to load applicants. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   async function handleStatusChange(applicationId: string, newStatus: string) {
     try {
       const res = await fetch(`/api/employer/jobs/${jobId}/applicants`, {
