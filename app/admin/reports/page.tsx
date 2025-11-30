@@ -3,6 +3,26 @@ import ReportActions from '@/components/ReportActions'
 
 export const dynamic = 'force-dynamic'
 
+type CompanyRecord = { id: string; name: string | null } | null
+type ApplicationRecord = { 
+  id: string; 
+  job_postings: { id: string; title: string | null } | null 
+} | null
+
+type Report = {
+  id: string
+  reason: string
+  details: string | null
+  status: string | null
+  created_at: string
+  updated_at: string
+  user_id: string
+  company_id: string
+  application_id: string | null
+  companies: CompanyRecord | CompanyRecord[]
+  job_applications: ApplicationRecord | ApplicationRecord[]
+}
+
 interface SearchParams {
   status?: string
 }
@@ -45,6 +65,8 @@ export default async function AdminReportsPage({
   }
 
   const { data: reports, error } = await query
+
+  const typedReports = (reports || []) as Report[]
 
   // Get counts by status
   const [
@@ -136,8 +158,8 @@ export default async function AdminReportsPage({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
-              {reports && reports.length > 0 ? (
-                reports.map((report) => {
+              {typedReports && typedReports.length > 0 ? (
+                typedReports.map((report) => {
                   type CompanyRecord = { id: string; name: string | null } | null
                   type ApplicationRecord = { 
                     id: string; 
