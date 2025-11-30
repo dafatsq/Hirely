@@ -45,20 +45,29 @@ export default async function ReportCompanyPage({ params }: PageProps) {
     redirect('/applications')
   }
 
+  type CompanyRecord = {
+    id: string
+    name: string | null
+    average_rating: number | null
+    total_ratings: number | null
+  } | null
+
   type JobPostingRecord = {
     id: string
     title: string | null
     location: string | null
-    companies: {
-      id: string
-      name: string | null
-      average_rating: number | null
-      total_ratings: number | null
-    } | null
+    companies: CompanyRecord | CompanyRecord[]
   }
 
-  const job = application.job_postings as JobPostingRecord | null
+  const rawJob = Array.isArray(application.job_postings)
+    ? application.job_postings[0]
+    : application.job_postings
+
+  const job = (rawJob || null) as JobPostingRecord | null
+
   const company = job?.companies
+    ? (Array.isArray(job.companies) ? job.companies[0] : job.companies)
+    : null
 
   if (!job || !company?.id) {
     redirect('/applications')

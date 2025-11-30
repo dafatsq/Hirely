@@ -65,6 +65,13 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
     notFound()
   }
 
+  type CompanyRecord = {
+    id: string
+    name: string | null
+    average_rating: number | null
+    total_ratings: number | null
+  } | null
+
   type JobPostingRecord = {
     id: string
     title: string | null
@@ -73,16 +80,18 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
     type: string | null
     salary_min: number | null
     salary_max: number | null
-    companies: {
-      id: string
-      name: string | null
-      average_rating: number | null
-      total_ratings: number | null
-    } | null
+    companies: CompanyRecord | CompanyRecord[]
   }
 
-  const job = application.job_postings as JobPostingRecord | null
+  const rawJob = Array.isArray(application.job_postings)
+    ? application.job_postings[0]
+    : application.job_postings
+
+  const job = (rawJob || null) as JobPostingRecord | null
+
   const company = job?.companies
+    ? (Array.isArray(job.companies) ? job.companies[0] : job.companies)
+    : null
 
   const isOwner = application.user_id === user.id
 

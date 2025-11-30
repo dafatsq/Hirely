@@ -21,8 +21,19 @@ export default async function PublicProfilePage({ params }: PageProps) {
     notFound()
   }
 
+  type ExperienceRecord = {
+    id: string
+    position: string
+    company_name: string
+    start_date: string
+    end_date: string | null
+    description: string | null
+    location: string | null
+    is_current: boolean | null
+  }
+
   // Fetch work experience for job seekers
-  let experiences = []
+  let experiences: ExperienceRecord[] = []
   if (profile.role === 'jobseeker') {
     const { data: expData } = await supabase
       .from('work_experience')
@@ -30,7 +41,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       .eq('user_id', id)
       .order('start_date', { ascending: false })
     
-    experiences = expData || []
+    experiences = (expData || []) as ExperienceRecord[]
   }
 
   // Fetch company data if user is an employer
@@ -151,7 +162,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
           <div className="card p-8">
             <h3 className="text-xl font-semibold mb-6">Work Experience</h3>
             <div className="space-y-6">
-              {experiences.map((exp: { id: string; position: string; company_name: string; start_date: string; end_date: string | null; description: string }) => (
+              {experiences.map((exp) => (
                 <div key={exp.id} className="relative pl-8 pb-6 border-l-2 border-slate-200 last:border-0">
                   <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-sky-500 border-4 border-white" />
                   <div className="flex items-start justify-between gap-4 mb-2">
@@ -164,7 +175,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
                     </div>
                     <div className="text-sm text-slate-500 flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      {formatDate(exp.start_date)} - {exp.is_current ? 'Present' : formatDate(exp.end_date)}
+                      {formatDate(exp.start_date)} - {exp.is_current ? 'Present' : exp.end_date ? formatDate(exp.end_date) : 'N/A'}
                     </div>
                   </div>
                   {exp.description && (

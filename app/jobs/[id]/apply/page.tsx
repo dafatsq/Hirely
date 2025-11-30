@@ -22,6 +22,11 @@ interface JobSummary {
   skills: string[]
 }
 
+type CompanyInfo = {
+  name: string | null
+  logo_url: string | null
+} | null
+
 interface JobRow {
   id: string
   title: string
@@ -30,10 +35,7 @@ interface JobRow {
   salary_min: number | null
   salary_max: number | null
   skills: string[] | null
-  companies: {
-    name: string | null
-    logo_url: string | null
-  } | null
+  companies: CompanyInfo | CompanyInfo[]
 }
 
 export const dynamic = "force-dynamic"
@@ -54,6 +56,8 @@ async function getJobForApply(id: string): Promise<JobSummary | null> {
 
   const job = data as JobRow
   const company = job.companies
+    ? (Array.isArray(job.companies) ? job.companies[0] : job.companies)
+    : null
 
   return {
     id: job.id,

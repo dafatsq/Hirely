@@ -55,17 +55,26 @@ export default async function ApplicationsPage() {
 
   const ratedApplicationIds = new Set(ratings?.map(r => r.application_id) || [])
 
+  type CompanyRecord = { id: string; name: string | null } | null
+
   type JobPostingRecord = {
     id: string
     title: string | null
     location: string | null
     company_id: string | null
-    companies: { name: string } | null
+    companies: CompanyRecord | CompanyRecord[]
   }
 
   const applicationsData = (applications || []).map(app => {
-    const jobPosting = app.job_postings as JobPostingRecord | null
+    const rawJobPosting = Array.isArray(app.job_postings)
+      ? app.job_postings[0]
+      : app.job_postings
+
+    const jobPosting = (rawJobPosting || null) as JobPostingRecord | null
+
     const companyInfo = jobPosting?.companies
+      ? (Array.isArray(jobPosting.companies) ? jobPosting.companies[0] : jobPosting.companies)
+      : null
 
     return {
       id: app.id,

@@ -23,18 +23,20 @@ export default async function HomePage() {
   const isEmployer = userRole === 'employer'
 
   // Fetch recent jobs for non-employers
-  type JobPosting = {
+  type CompanyRecord = { name: string | null } | null
+  type JobPostingRow = {
     id: string
-    title: string
-    location: string
-    type: string
-    salary_min: number
-    salary_max: number
-    created_at: string
-    company_name: string
-    employment_type: string
+    title: string | null
+    location: string | null
+    type: string | null
+    salary_min: number | null
+    salary_max: number | null
+    skills: string[] | null
+    companies: CompanyRecord | CompanyRecord[]
   }
-  let recentJobs: JobPosting[] = []
+  type RecentJob = Omit<JobPostingRow, 'companies'> & { companies: CompanyRecord }
+
+  let recentJobs: RecentJob[] = []
   if (!isEmployer) {
     const { data } = await supabase
       .from('job_postings')
@@ -51,8 +53,14 @@ export default async function HomePage() {
       .eq('status', 'open')
       .order('created_at', { ascending: false })
       .limit(6)
-    
-    recentJobs = data || []
+
+    const rows = (data || []) as JobPostingRow[]
+    recentJobs = rows.map((job) => ({
+      ...job,
+      companies: job.companies
+        ? (Array.isArray(job.companies) ? job.companies[0] : job.companies)
+        : null,
+    }))
   }
 
   return (
@@ -170,7 +178,7 @@ export default async function HomePage() {
                         <span className="badge badge-blue">{job.type || 'Full-time'}</span>
                       </div>
                       <h4 className="font-semibold text-lg mb-2">{job.title}</h4>
-                      <p className="text-slate-600 text-sm mb-4">{(job.companies as { name?: string })?.name || 'Company'}</p>
+                      <p className="text-slate-600 text-sm mb-4">{job.companies?.name || 'Company'}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {job.skills?.slice(0, 3).map((skill: string, idx: number) => (
                           <span key={idx} className="text-xs px-2 py-1 bg-slate-100 rounded-full text-slate-600">
