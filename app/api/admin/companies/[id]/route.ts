@@ -37,9 +37,11 @@ export async function PUT(
 
     // Update company verification status using admin client
     const adminClient = createAdminClient()
+    
     const { data, error } = await adminClient
       .from('companies')
-      .update({ verified } as { verified: boolean })
+      // @ts-expect-error - Supabase admin client type inference issue
+      .update({ verified })
       .eq('id', id)
       .select()
       .single()
