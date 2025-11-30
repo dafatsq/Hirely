@@ -20,6 +20,27 @@ type Company = {
   created_at: string
 }
 
+type Employer = {
+  id: string
+  full_name: string
+  email: string
+}
+
+type Job = {
+  id: string
+  title: string
+  status: string
+  created_at: string
+}
+
+type Report = {
+  id: string
+  report_type: string
+  description: string
+  status: string
+  created_at: string
+}
+
 export default async function CompanyDetailsPage({
   params,
 }: {
@@ -61,9 +82,9 @@ export default async function CompanyDetailsPage({
       .eq('role', 'employer')
   ])
 
-  const jobs = jobsResult.data || []
-  const reports = reportsResult.data || []
-  const employers = employersResult.data || []
+  const jobs = (jobsResult.data || []) as Job[]
+  const reports = (reportsResult.data || []) as Report[]
+  const employers = (employersResult.data || []) as Employer[]
 
   return (
     <div className="space-y-6">
