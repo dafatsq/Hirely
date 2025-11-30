@@ -23,7 +23,7 @@ export default async function SavedJobsPage() {
     .single()
   
   if (profile?.role === 'admin') {
-    redirect('/admin/users')
+    redirect('/admin')
   }
 
   if (profile?.role === 'employer') {

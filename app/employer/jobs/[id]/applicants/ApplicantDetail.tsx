@@ -4,6 +4,7 @@ import { useState } from "react"
 import { X, Download, ExternalLink, Calendar, DollarSign, Mail, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
+import { useToast } from "@/components/ToastProvider"
 
 type ScreeningAnswer = {
   id: string
@@ -46,6 +47,7 @@ const statusOptions = [
 
 export function ApplicantDetail({ applicant, onClose, onStatusChange }: ApplicantDetailProps) {
   const [isUpdating, setIsUpdating] = useState(false)
+  const { showToast } = useToast()
 
   async function handleStatusChange(newStatus: string) {
     setIsUpdating(true)
@@ -70,7 +72,7 @@ export function ApplicantDetail({ applicant, onClose, onStatusChange }: Applican
       
       if (error) {
         console.error('Error getting resume URL:', error)
-        alert('Failed to download resume. Please try again.')
+        showToast('Failed to download resume. Please try again.', 'error')
         return
       }
       
@@ -85,7 +87,7 @@ export function ApplicantDetail({ applicant, onClose, onStatusChange }: Applican
       }
     } catch (error) {
       console.error('Error downloading resume:', error)
-      alert('Failed to download resume. Please try again.')
+      showToast('Failed to download resume. Please try again.', 'error')
     }
   }
 

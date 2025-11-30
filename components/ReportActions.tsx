@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle, XCircle, Clock, RotateCcw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ToastProvider'
 
 interface ReportActionsProps {
   reportId: string
@@ -12,6 +13,7 @@ interface ReportActionsProps {
 export default function ReportActions({ reportId, currentStatus }: ReportActionsProps) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
+  const { showToast } = useToast()
 
   const updateStatus = async (newStatus: string) => {
     setLoading(newStatus)
@@ -29,11 +31,12 @@ export default function ReportActions({ reportId, currentStatus }: ReportActions
         throw new Error(error.error || 'Failed to update status')
       }
 
+      showToast('Report status updated successfully', 'success')
       // Refresh the page to show updated data
       router.refresh()
     } catch (error) {
       console.error('Error updating report status:', error)
-      alert(error instanceof Error ? error.message : 'Failed to update status')
+      showToast(error instanceof Error ? error.message : 'Failed to update status', 'error')
     } finally {
       setLoading(null)
     }

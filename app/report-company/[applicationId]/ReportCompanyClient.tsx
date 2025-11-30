@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { AlertCircle, Send } from 'lucide-react'
+import { useToast } from '@/components/ToastProvider'
 
 const REASONS = [
   'Fraudulent activity',
@@ -36,6 +37,7 @@ export default function ReportCompanyClient({
 }: ReportCompanyClientProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     reason: existingReport?.reason || '',
@@ -46,7 +48,7 @@ export default function ReportCompanyClient({
     e.preventDefault()
 
     if (!formData.reason) {
-      alert('Please select a reason for the report')
+      showToast('Please select a reason for the report', 'error')
       return
     }
 
@@ -58,7 +60,7 @@ export default function ReportCompanyClient({
       } = await supabase.auth.getUser()
 
       if (!user) {
-        alert('Please log in first')
+        showToast('Please log in first', 'info')
         return
       }
 
@@ -84,12 +86,12 @@ export default function ReportCompanyClient({
         if (error) throw error
       }
 
-      alert('Report submitted. Our team will review it shortly.')
+      showToast('Report submitted. Our team will review it shortly.', 'success')
       router.refresh()
       router.push(`/applications/${applicationId}?refresh=${Date.now()}`)
     } catch (error) {
       console.error('Error submitting report:', error)
-      alert(error instanceof Error ? error.message : 'Failed to submit report')
+      showToast(error instanceof Error ? error.message : 'Failed to submit report', 'error')
     } finally {
       setLoading(false)
     }

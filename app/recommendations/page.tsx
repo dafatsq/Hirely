@@ -26,6 +26,10 @@ export default async function RecommendationsPage() {
     redirect('/employer/dashboard')
   }
 
+  if (profile?.role === 'admin') {
+    redirect('/admin')
+  }
+
   // Fetch user's skills
   // @ts-expect-error - Supabase types might not be updated yet
   const userSkills = profile?.job_seekers?.skills || []

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { XCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ToastProvider'
 
 interface JobActionsProps {
   jobId: string
@@ -11,6 +12,7 @@ interface JobActionsProps {
 export default function JobActions({ jobId }: JobActionsProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const { showToast } = useToast()
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
@@ -28,10 +30,11 @@ export default function JobActions({ jobId }: JobActionsProps) {
         throw new Error(error.error || 'Failed to delete job')
       }
 
+      showToast('Job deleted successfully', 'success')
       router.refresh()
     } catch (error) {
       console.error('Error deleting job:', error)
-      alert(error instanceof Error ? error.message : 'Failed to delete job')
+      showToast(error instanceof Error ? error.message : 'Failed to delete job', 'error')
     } finally {
       setLoading(false)
     }

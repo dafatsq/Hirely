@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle, XCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ToastProvider'
 
 interface CompanyActionsProps {
   companyId: string
@@ -11,6 +12,7 @@ interface CompanyActionsProps {
 
 export default function CompanyActions({ companyId, isVerified }: CompanyActionsProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState<string | null>(null)
 
   const updateVerification = async (verified: boolean) => {
@@ -29,10 +31,11 @@ export default function CompanyActions({ companyId, isVerified }: CompanyActions
         throw new Error(error.error || 'Failed to update company')
       }
 
+      showToast(verified ? 'Company verified successfully' : 'Company suspended successfully', 'success')
       router.refresh()
     } catch (error) {
       console.error('Error updating company:', error)
-      alert(error instanceof Error ? error.message : 'Failed to update company')
+      showToast(error instanceof Error ? error.message : 'Failed to update company', 'error')
     } finally {
       setLoading(null)
     }

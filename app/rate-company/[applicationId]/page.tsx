@@ -58,11 +58,6 @@ export default async function RateCompanyPage({ params }: PageProps) {
     redirect('/applications')
   }
 
-  // Check if application is accepted
-  if (application.status !== 'accepted') {
-    redirect('/applications')
-  }
-
   // @ts-expect-error - Supabase nested select typing
   const companyId = application.job_postings?.companies?.id
   // @ts-expect-error - Supabase nested select typing

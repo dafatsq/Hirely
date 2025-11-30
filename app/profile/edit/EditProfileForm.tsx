@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { User, MapPin, Phone } from 'lucide-react'
 import SkillSelector from '@/components/SkillSelector'
+import { useToast } from '@/components/ToastProvider'
 
 interface EditProfileFormProps {
   initialData: {
@@ -20,6 +21,7 @@ interface EditProfileFormProps {
 export default function EditProfileForm({ initialData }: EditProfileFormProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   
   const [formData, setFormData] = useState({
@@ -38,7 +40,7 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert('Please log in first')
+        showToast('Please log in first', 'info')
         return
       }
 
@@ -66,12 +68,12 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
         if (skillsError) throw skillsError
       }
 
-      alert('Profile updated successfully!')
+      showToast('Profile updated successfully!', 'success')
       router.push('/profile')
       router.refresh()
     } catch (error) {
       console.error('Error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to update profile')
+      showToast(error instanceof Error ? error.message : 'Failed to update profile', 'error')
     } finally {
       setLoading(false)
     }

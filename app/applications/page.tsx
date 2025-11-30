@@ -29,6 +29,10 @@ export default async function ApplicationsPage() {
     redirect('/employer/dashboard')
   }
 
+  if (profile?.role === 'admin') {
+    redirect('/admin')
+  }
+
   const { data: applications } = await supabase
     .from('job_applications')
     .select(`
@@ -181,15 +185,13 @@ export default async function ApplicationsPage() {
                   days ago
                 </div>
                 <div className="flex items-center gap-2">
-                  {app.status === 'accepted' && (
-                    <Link
-                      href={`/rate-company/${app.id}`}
-                      className="text-sm px-4 py-2 rounded-lg font-medium transition-colors bg-yellow-100 text-yellow-700 hover:bg-yellow-200 flex items-center gap-1"
-                    >
-                      <Star className="w-4 h-4" />
-                      {app.hasRating ? 'Update Rating' : 'Rate Company'}
-                    </Link>
-                  )}
+                  <Link
+                    href={`/rate-company/${app.id}`}
+                    className="text-sm px-4 py-2 rounded-lg font-medium transition-colors bg-yellow-100 text-yellow-700 hover:bg-yellow-200 flex items-center gap-1"
+                  >
+                    <Star className="w-4 h-4" />
+                    {app.hasRating ? 'Update Rating' : 'Rate Company'}
+                  </Link>
                   <Link
                     href={`/applications/${app.id}`}
                     className="text-sm text-sky-500 hover:underline flex items-center gap-1"

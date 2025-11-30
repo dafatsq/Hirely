@@ -112,7 +112,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
     existingReport = data
   }
 
-  const canRate = isOwner && application.status === 'accepted'
+  const canRate = isOwner
 
   // Generate a short-lived signed URL so owners/admins can open private resumes
   let resumeLink: string | null = null

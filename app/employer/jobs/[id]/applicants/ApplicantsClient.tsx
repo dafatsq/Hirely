@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Filter, Search, Users } from "lucide-react"
 import Link from "next/link"
 import { ApplicantDetail } from "./ApplicantDetail"
+import { useToast } from "@/components/ToastProvider"
 
 type ScreeningAnswer = {
   id: string
@@ -42,6 +43,7 @@ const statusConfig = {
 export default function ApplicantsClientPage() {
   const params = useParams()
   const router = useRouter()
+  const { showToast } = useToast()
   const jobId = params.id as string
 
   const [applicants, setApplicants] = useState<Applicant[]>([])
@@ -50,11 +52,6 @@ export default function ApplicantsClientPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [statusUpdateNotification, setStatusUpdateNotification] = useState<{
-    show: boolean
-    applicantName: string
-    newStatus: string
-  }>({ show: false, applicantName: "", newStatus: "" })
 
   const fetchApplicants = async () => {
     try {
@@ -118,6 +115,7 @@ export default function ApplicantsClientPage() {
       // Find applicant name for notification
       const applicant = applicants.find((app) => app.id === applicationId)
       const applicantName = applicant?.users?.full_name || "Applicant"
+      const statusLabel = statusConfig[newStatus as keyof typeof statusConfig]?.label || newStatus
 
       // Update local state
       setApplicants((prev) =>
@@ -131,22 +129,12 @@ export default function ApplicantsClientPage() {
         setSelectedApplicant({ ...selectedApplicant, status: newStatus })
       }
 
-      // Show subtle notification
-      setStatusUpdateNotification({
-        show: true,
-        applicantName,
-        newStatus: statusConfig[newStatus as keyof typeof statusConfig]?.label || newStatus,
-      })
-
-      // Hide notification after 3 seconds
-      setTimeout(() => {
-        setStatusUpdateNotification({ show: false, applicantName: "", newStatus: "" })
-      }, 3000)
+      showToast(`${applicantName}'s status updated to ${statusLabel}`, 'success')
 
       router.refresh()
     } catch (error) {
       console.error("Error updating status:", error)
-      alert("Failed to update status. Please try again.")
+      showToast("Failed to update status. Please try again.", 'error')
     }
   }
 
@@ -170,23 +158,6 @@ export default function ApplicantsClientPage() {
 
   return (
     <>
-      {/* Status Update Notification */}
-      {statusUpdateNotification.show && (
-        <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top duration-300">
-          <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <div>
-              <p className="font-medium">
-                {statusUpdateNotification.applicantName}&apos;s status updated to{" "}
-                <span className="font-bold">{statusUpdateNotification.newStatus}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       <section className="px-6 md:px-8 mb-12">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6">

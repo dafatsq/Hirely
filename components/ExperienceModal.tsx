@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { X, Briefcase, MapPin, Calendar } from 'lucide-react'
+import { useToast } from '@/components/ToastProvider'
 
 interface WorkExperience {
   id: string
@@ -25,6 +26,7 @@ interface ExperienceModalProps {
 export default function ExperienceModal({ isOpen, onClose, onSave, experience }: ExperienceModalProps) {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
+  const { showToast } = useToast()
   
   const [formData, setFormData] = useState({
     company_name: experience?.company_name || '',
@@ -67,11 +69,12 @@ export default function ExperienceModal({ isOpen, onClose, onSave, experience }:
         if (error) throw error
       }
 
+      showToast('Experience saved successfully', 'success')
       onSave()
       onClose()
     } catch (error) {
       console.error('Error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to save experience')
+      showToast(error instanceof Error ? error.message : 'Failed to save experience', 'error')
     } finally {
       setLoading(false)
     }

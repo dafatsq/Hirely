@@ -146,6 +146,9 @@ export default async function JobsPage({ searchParams }: Props) {
     if (profile?.role === 'employer') {
       redirect('/employer/dashboard')
     }
+    if (profile?.role === 'admin') {
+      redirect('/admin')
+    }
   }
   
   const params = await searchParams

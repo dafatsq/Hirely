@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Bookmark } from 'lucide-react'
+import { useToast } from '@/components/ToastProvider'
 
 interface SaveJobButtonProps {
   jobId: string
@@ -15,6 +16,7 @@ export default function SaveJobButton({ jobId, size = 'md' }: SaveJobButtonProps
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
   const router = useRouter()
+  const { showToast } = useToast()
 
   useEffect(() => {
     checkSavedStatus()
@@ -49,7 +51,7 @@ export default function SaveJobButton({ jobId, size = 'md' }: SaveJobButtonProps
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert('Please log in to save jobs')
+        showToast('Please log in to save jobs', 'info')
         return
       }
 
@@ -63,6 +65,7 @@ export default function SaveJobButton({ jobId, size = 'md' }: SaveJobButtonProps
 
         if (error) throw error
         setIsSaved(false)
+        showToast('Job removed from saved jobs', 'success')
         router.refresh()
       } else {
         // Save
@@ -75,11 +78,12 @@ export default function SaveJobButton({ jobId, size = 'md' }: SaveJobButtonProps
 
         if (error) throw error
         setIsSaved(true)
+        showToast('Job saved successfully', 'success')
         router.refresh()
       }
     } catch (error) {
       console.error('Error toggling save:', error)
-      alert(error instanceof Error ? error.message : 'Failed to save job')
+      showToast(error instanceof Error ? error.message : 'Failed to save job', 'error')
     } finally {
       setLoading(false)
     }

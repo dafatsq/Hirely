@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Briefcase, MapPin, Calendar, Plus, Edit, Trash2 } from 'lucide-react'
 import ExperienceModal from './ExperienceModal'
+import { useToast } from '@/components/ToastProvider'
 
 interface WorkExperience {
   id: string
@@ -26,6 +27,7 @@ export default function ExperienceSection({ initialExperiences }: ExperienceSect
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingExperience, setEditingExperience] = useState<WorkExperience | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const { showToast } = useToast()
 
   const fetchExperiences = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -63,9 +65,10 @@ export default function ExperienceSection({ initialExperiences }: ExperienceSect
       if (error) throw error
       
       await fetchExperiences()
+      showToast('Experience deleted successfully', 'success')
     } catch (error) {
       console.error('Error:', error)
-      alert('Failed to delete experience')
+      showToast('Failed to delete experience', 'error')
     } finally {
       setDeletingId(null)
     }

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Briefcase, MapPin, DollarSign } from 'lucide-react'
 import SkillSelector from '@/components/SkillSelector'
+import { useToast } from '@/components/ToastProvider'
 
 interface PostJobFormProps {
   companyId: string
@@ -14,6 +15,7 @@ interface PostJobFormProps {
 export default function PostJobForm({ companyId, userId }: PostJobFormProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   
@@ -70,12 +72,12 @@ export default function PostJobForm({ companyId, userId }: PostJobFormProps) {
 
       if (error) throw error
 
-      alert(status === 'draft' ? 'Job saved as draft!' : 'Job posted successfully!')
+      showToast(status === 'draft' ? 'Job saved as draft!' : 'Job posted successfully!', 'success')
       router.push('/employer/dashboard')
       router.refresh()
     } catch (error) {
       console.error('Error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to post job')
+      showToast(error instanceof Error ? error.message : 'Failed to post job', 'error')
     } finally {
       setLoading(false)
     }

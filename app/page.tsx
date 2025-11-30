@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Search, MapPin, Briefcase, Users, TrendingUp, Shield, Building, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -18,6 +19,10 @@ export default async function HomePage() {
       .single()
     
     userRole = profile?.role
+  }
+
+  if (userRole === 'admin') {
+    redirect('/admin')
   }
   
   const isEmployer = userRole === 'employer'

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Star, Building, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { useToast } from '@/components/ToastProvider'
 
 interface RateCompanyClientProps {
   applicationId: string
@@ -32,6 +33,7 @@ export default function RateCompanyClient({
 }: RateCompanyClientProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     rating: existingRating?.rating || 0,
@@ -77,7 +79,7 @@ export default function RateCompanyClient({
     e.preventDefault()
     
     if (formData.rating === 0) {
-      alert('Please provide an overall rating')
+      showToast('Please provide an overall rating', 'error')
       return
     }
 
@@ -86,7 +88,7 @@ export default function RateCompanyClient({
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert('Please log in first')
+        showToast('Please log in first', 'info')
         return
       }
 
@@ -116,7 +118,7 @@ export default function RateCompanyClient({
         console.log('Updating company rating for company:', companyId)
         await updateCompanyRating(companyId)
         
-        alert('Rating updated successfully!')
+        showToast('Rating updated successfully!', 'success')
       } else {
         // Create new rating
         const { error } = await supabase
@@ -129,7 +131,7 @@ export default function RateCompanyClient({
         console.log('Updating company rating for company:', companyId)
         await updateCompanyRating(companyId)
         
-        alert('Thank you for your rating!')
+        showToast('Thank you for your rating!', 'success')
       }
 
       // Refresh applications view with cache-busting query param
@@ -137,7 +139,7 @@ export default function RateCompanyClient({
       router.push(`/applications?refresh=${Date.now()}`)
     } catch (error) {
       console.error('Error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to submit rating')
+      showToast(error instanceof Error ? error.message : 'Failed to submit rating', 'error')
     } finally {
       setLoading(false)
     }

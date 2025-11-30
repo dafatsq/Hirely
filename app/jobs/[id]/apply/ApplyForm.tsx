@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { CheckCircle2, Loader2, UploadCloud, X } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { ScreeningQuestion } from "./types"
+import { useToast } from "@/components/ToastProvider"
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
@@ -24,6 +25,7 @@ type ScreeningAnswers = Record<string, string>
 
 export function ApplyForm({ jobId, jobTitle, companyName, screeningQuestions }: ApplyFormProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -71,12 +73,12 @@ export function ApplyForm({ jobId, jobTitle, companyName, screeningQuestions }: 
     if (!file) return
 
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      window.alert("Please upload a PDF, DOC, or DOCX file.")
+      showToast("Please upload a PDF, DOC, or DOCX file.", 'error')
       return
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      window.alert("File size must be less than 10MB.")
+      showToast("File size must be less than 10MB.", 'error')
       return
     }
 
@@ -131,7 +133,7 @@ export function ApplyForm({ jobId, jobTitle, companyName, screeningQuestions }: 
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        window.alert("Please log in to submit an application.")
+        showToast("Please log in to submit an application.", 'info')
         router.push("/login")
         return
       }
@@ -150,7 +152,7 @@ export function ApplyForm({ jobId, jobTitle, companyName, screeningQuestions }: 
 
       if (uploadError) {
         console.error("Resume upload failed:", uploadError)
-        window.alert(`Failed to upload resume: ${uploadError.message}. Please try again.`)
+        showToast(`Failed to upload resume: ${uploadError.message}. Please try again.`, 'error')
         setIsSubmitting(false)
         return
       }        resumeUrl = uploadData.path
@@ -176,17 +178,17 @@ export function ApplyForm({ jobId, jobTitle, companyName, screeningQuestions }: 
 
       if (insertError) {
         console.error("Application insert failed:", insertError)
-        window.alert(`Failed to submit application: ${insertError.message}. Please try again or contact support.`)
+        showToast(`Failed to submit application: ${insertError.message}. Please try again or contact support.`, 'error')
         setIsSubmitting(false)
         return
       }
 
-      window.alert("Application submitted successfully! The hiring team will reach out if you're a fit.")
+      showToast("Application submitted successfully! The hiring team will reach out if you're a fit.", 'success')
       router.push(`/jobs/${jobId}`)
       router.refresh()
     } catch (error) {
       console.error("Application submission error:", error)
-      window.alert("An error occurred. Please try again.")
+      showToast("An error occurred. Please try again.", 'error')
       setIsSubmitting(false)
     }
   }

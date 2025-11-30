@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Building, Globe, Upload, Search, AlertCircle } from 'lucide-react'
+import { useToast } from '@/components/ToastProvider'
 
 interface Company {
   id: string
@@ -20,6 +21,7 @@ interface RegisterCompanyClientProps {
 export default function RegisterCompanyClient({ currentCompany }: RegisterCompanyClientProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { showToast } = useToast()
   
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'create' | 'join'>('create')
@@ -53,7 +55,7 @@ export default function RegisterCompanyClient({ currentCompany }: RegisterCompan
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert('Please log in first')
+        showToast('Please log in first', 'info')
         return
       }
 
@@ -65,12 +67,12 @@ export default function RegisterCompanyClient({ currentCompany }: RegisterCompan
 
       if (error) throw error
 
-      alert(currentCompany ? 'Company changed successfully!' : 'Successfully joined company!')
+      showToast(currentCompany ? 'Company changed successfully!' : 'Successfully joined company!', 'success')
       router.push('/employer/dashboard')
       router.refresh()
     } catch (error) {
       console.error('Error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to join company')
+      showToast(error instanceof Error ? error.message : 'Failed to join company', 'error')
     } finally {
       setLoading(false)
     }
@@ -83,7 +85,7 @@ export default function RegisterCompanyClient({ currentCompany }: RegisterCompan
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert('Please log in first')
+        showToast('Please log in first', 'info')
         return
       }
 
@@ -112,12 +114,12 @@ export default function RegisterCompanyClient({ currentCompany }: RegisterCompan
 
       if (updateError) throw updateError
 
-      alert(currentCompany ? 'Company changed successfully!' : 'Company created successfully!')
+      showToast(currentCompany ? 'Company changed successfully!' : 'Company created successfully!', 'success')
       router.push('/employer/dashboard')
       router.refresh()
     } catch (error) {
       console.error('Error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to create company')
+      showToast(error instanceof Error ? error.message : 'Failed to create company', 'error')
     } finally {
       setLoading(false)
     }
