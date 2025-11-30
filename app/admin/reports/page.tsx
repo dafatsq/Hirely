@@ -160,12 +160,6 @@ export default async function AdminReportsPage({
             <tbody className="bg-white divide-y divide-slate-200">
               {typedReports && typedReports.length > 0 ? (
                 typedReports.map((report) => {
-                  type CompanyRecord = { id: string; name: string | null } | null
-                  type ApplicationRecord = { 
-                    id: string; 
-                    job_postings: { id: string; title: string | null } | null 
-                  } | null
-
                   const company = Array.isArray(report.companies) ? report.companies[0] : report.companies as CompanyRecord
                   const application = Array.isArray(report.job_applications) 
                     ? report.job_applications[0] 
