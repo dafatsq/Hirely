@@ -38,6 +38,7 @@ type Report = {
   report_type: string
   description: string
   reason: string
+  details: string | null
   status: string
   created_at: string
 }
