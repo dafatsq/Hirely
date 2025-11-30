@@ -5,6 +5,26 @@ import JobActions from '@/components/JobActions'
 
 export const dynamic = 'force-dynamic'
 
+type CompanyRecord = {
+  id: string
+  name: string | null
+  verified: boolean | null
+} | null
+
+type Job = {
+  id: string
+  title: string
+  description: string | null
+  location: string | null
+  type: string | null
+  salary_min: number | null
+  salary_max: number | null
+  status: string
+  created_at: string
+  employer_id: string
+  companies: CompanyRecord | CompanyRecord[]
+}
+
 interface SearchParams {
   status?: string
   search?: string
@@ -50,6 +70,8 @@ export default async function AdminJobsPage({
   console.log('Executing jobs query...')
   const { data: jobs, error } = await query
   console.log('Jobs query result:', { jobsCount: jobs?.length, error })
+
+  const typedJobs = (jobs || []) as Job[]
 
   // Get stats
   console.log('Fetching stats...')
@@ -132,8 +154,8 @@ export default async function AdminJobsPage({
 
       {/* Jobs List */}
       <div className="space-y-4">
-        {jobs && jobs.length > 0 ? (
-          jobs.map((job) => {
+        {typedJobs && typedJobs.length > 0 ? (
+          typedJobs.map((job) => {
             type CompanyRecord = { id: string; name: string | null; verified: boolean | null } | null
             
             const company = Array.isArray(job.companies) ? job.companies[0] : job.companies as CompanyRecord
