@@ -12,11 +12,12 @@ export async function POST(request: Request) {
     const adminClient = createAdminClient()
 
     // Fetch all ratings for this company
-    // @ts-expect-error - Supabase admin client type inference issue
-    const { data: ratings, error: ratingsError } = await adminClient
+    const { data, error: ratingsError } = await adminClient
       .from('company_ratings')
       .select('rating')
       .eq('company_id', companyId)
+
+    const ratings = (data || []) as Array<{ rating: number }>
 
     if (ratingsError) {
       console.error('Error fetching ratings:', ratingsError)
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
       // Update company's average rating and total count
       const { error: updateError } = await adminClient
         .from('companies')
+        // @ts-expect-error - Supabase admin client type inference issue
         .update({
           average_rating: Math.round(avgRating * 10) / 10,
           total_ratings: ratings.length
@@ -47,7 +49,16 @@ export async function POST(request: Request) {
       })
     }
 
-    // No ratings found
+    // No ratings found - update company to have 0 ratings
+    await adminClient
+      .from('companies')
+      // @ts-expect-error - Supabase admin client type inference issue
+      .update({
+        average_rating: 0,
+        total_ratings: 0
+      })
+      .eq('id', companyId)
+
     return NextResponse.json({ 
       success: true, 
       average_rating: 0,
