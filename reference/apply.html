@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply for Job - HireLy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    
+    :root {
+      --radius: 20px;
+      --glow-a: rgba(14,165,233,0.25);
+      --glow-b: rgba(99,102,241,0.25);
+    }
+
+    body {
+      background-color: #e9f3ff;
+      background-image:
+        radial-gradient(1400px 700px at 0% -20%, var(--glow-a), transparent 60%),
+        radial-gradient(1400px 700px at 100% -20%, var(--glow-b), transparent 60%);
+      background-repeat: no-repeat;
+      background-attachment: fixed, fixed;
+    }
+
+    .card {
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .btn-primary {
+      border-radius: 9999px;
+      background: #0ea5e9;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      border-radius: 9999px;
+      background: rgba(14, 165, 233, 0.1);
+      color: #0ea5e9;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(14, 165, 233, 0.15);
+    }
+
+    .input-field {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      background: rgba(248, 250, 252, 0.8);
+      padding: 0.75rem 1rem;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 0.75rem;
+    }
+
+    .upload-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .upload-zone:hover {
+      border-color: #0ea5e9;
+      background: rgba(14, 165, 233, 0.05);
+    }
+
+    .upload-zone.dragover {
+      border-color: #0ea5e9;
+      background: rgba(14, 165, 233, 0.1);
+    }
+
+    .file-uploaded {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .badge-blue {
+      background: rgba(14, 165, 233, 0.1);
+      color: #0284c7;
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+  
+  <!-- Navigation -->
+  <nav class="p-6 md:p-8">
+    <div class="card max-w-7xl mx-auto px-6 py-4">
+      <div class="flex flex-wrap items-center gap-4 justify-between">
+        <div class="flex items-center gap-8">
+          <a href="index.html" class="text-2xl font-bold text-sky-500">HireLy</a>
+          <div class="hidden md:flex gap-6 text-sm font-medium">
+            <a href="index.html" class="text-slate-700 hover:text-sky-500 transition-colors">Home</a>
+            <a href="jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Jobs</a>
+            <a href="saved-jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Saved Jobs</a>
+            <a href="applications.html" class="text-slate-700 hover:text-sky-500 transition-colors">Applications</a>
+            <a href="profile.html" class="text-slate-700 hover:text-sky-500 transition-colors">Profile</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="login.html" class="btn-secondary hidden sm:block">Login</a>
+          <a href="register.html" class="btn-primary">Create Account</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <main class="px-6 md:px-8 pb-16">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Back Button -->
+      <div class="mb-6">
+        <a href="#" onclick="history.back(); return false;" class="inline-flex items-center gap-2 text-slate-600 hover:text-sky-500 transition-colors font-medium">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back to Job Details
+        </a>
+      </div>
+
+      <!-- Job Summary Header -->
+      <section class="card p-6 md:p-8 mb-8">
+        <div class="flex items-center gap-4 mb-4">
+          <div id="divCompanyLogo" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
+            G
+          </div>
+          <div>
+            <h1 id="lblJobTitle" class="text-2xl font-bold text-slate-900">Senior Frontend Developer</h1>
+            <p id="lblCompanyName" class="text-slate-600">Google Inc.</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <span id="badgeLocation" class="badge badge-blue">Jakarta</span>
+          <span id="badgeJobType" class="badge badge-blue">Full Time</span>
+          <span id="badgeSalary" class="badge badge-blue">Rp 15-25 jt/bln</span>
+        </div>
+      </section>
+
+      <form id="formApplication" class="space-y-8">
+
+        <!-- Resume Section -->
+        <section class="card p-6 md:p-8">
+          <h2 class="section-title">Resume / CV</h2>
+          <p class="text-slate-600 text-sm mb-6">Upload your resume or select from previously uploaded files</p>
+          
+          <div class="space-y-4">
+            <!-- Existing Resume Option -->
+            <label class="flex items-start gap-4 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-sky-300 transition-colors">
+              <input type="radio" name="resumeOption" value="existing" class="mt-1">
+              <div class="flex-1">
+                <p class="font-medium text-slate-900">Use existing resume</p>
+                <p class="text-sm text-slate-600">Nadia_Pratama_CV.pdf (uploaded 2 weeks ago)</p>
+              </div>
+            </label>
+
+            <!-- Upload New Resume -->
+            <label class="flex items-start gap-4 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-sky-300 transition-colors">
+              <input type="radio" name="resumeOption" value="new" class="mt-1" checked>
+              <div class="flex-1">
+                <p class="font-medium text-slate-900">Upload new resume</p>
+                <p class="text-sm text-slate-600">PDF, DOC, or DOCX (max 10MB)</p>
+              </div>
+            </label>
+
+            <!-- Upload Zone -->
+            <div id="uploadZone" class="upload-zone">
+              <input type="file" id="fileResume" class="hidden" accept=".pdf,.doc,.docx">
+              <svg class="w-12 h-12 mx-auto text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <p class="font-medium text-slate-700 mb-1">Click to upload or drag and drop</p>
+              <p class="text-sm text-slate-500">PDF, DOC, DOCX up to 10MB</p>
+            </div>
+
+            <div id="fileInfo" class="hidden p-4 bg-green-50 border border-green-200 rounded-2xl">
+              <div class="flex items-center gap-3">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="flex-1">
+                  <p id="fileName" class="font-medium text-slate-900"></p>
+                  <p id="fileSize" class="text-sm text-slate-600"></p>
+                </div>
+                <button type="button" onclick="removeFile()" class="text-slate-400 hover:text-slate-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cover Letter -->
+        <section class="card p-6 md:p-8">
+          <h2 class="section-title">Cover Letter (Optional)</h2>
+          <p class="text-slate-600 text-sm mb-4">Tell the employer why you're a great fit for this role</p>
+          
+          <textarea 
+            id="txtCoverLetter" 
+            class="input-field" 
+            rows="8" 
+            maxlength="2000"
+            placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my interest in the Senior Frontend Developer position..."
+          ></textarea>
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-slate-500">Write a compelling cover letter to stand out</p>
+            <p id="charCount" class="text-sm text-slate-500">0 / 2000</p>
+          </div>
+        </section>
+
+        <!-- Screening Questions -->
+        <section class="card p-6 md:p-8">
+          <h2 class="section-title">Screening Questions</h2>
+          <p class="text-slate-600 text-sm mb-6">Please answer the following questions from the employer</p>
+          
+          <div id="screeningQuestions" class="space-y-6">
+            <!-- Questions will be dynamically inserted -->
+          </div>
+        </section>
+
+        <!-- Additional Information -->
+        <section class="card p-6 md:p-8">
+          <h2 class="section-title">Additional Information</h2>
+          
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Portfolio URL (Optional)</label>
+              <input type="url" id="inputPortfolio" class="input-field" placeholder="https://yourportfolio.com">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">LinkedIn Profile (Optional)</label>
+              <input type="url" id="inputLinkedIn" class="input-field" placeholder="https://linkedin.com/in/yourprofile">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Expected Salary (IDR per month)</label>
+              <input type="number" id="inputSalary" class="input-field" placeholder="15000000" min="0">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Earliest Start Date <span class="text-red-500">*</span></label>
+              <input type="date" id="inputStartDate" class="input-field" required>
+            </div>
+          </div>
+        </section>
+
+        <!-- Terms & Consent -->
+        <section class="card p-6 md:p-8">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" id="chkConsent" class="mt-1 w-5 h-5 text-sky-500 border-slate-300 rounded" required>
+            <div class="text-sm text-slate-700">
+              I agree that the information provided is accurate and complete. I consent to HireLy sharing my application with the employer and understand that they may contact me regarding this position. I have read and agree to the <a href="privacy.html" class="text-sky-500 hover:underline">Privacy Policy</a>.
+            </div>
+          </label>
+        </section>
+
+        <!-- Submit Button -->
+        <div class="flex gap-4">
+          <button type="submit" id="btnSubmit" class="btn-primary flex-1" disabled>
+            Submit Application
+          </button>
+          <button type="button" onclick="history.back()" class="btn-secondary">
+            Cancel
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="px-6 md:px-8 pb-8">
+    <div class="card max-w-7xl mx-auto p-8 md:p-12">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h4 class="text-xl font-bold text-sky-500 mb-4">HireLy</h4>
+          <p class="text-slate-600 text-sm">Your trusted partner in finding the perfect career opportunity.</p>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">For Job Seekers</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="jobs.html" class="hover:text-sky-500">Browse Jobs</a></li>
+            <li><a href="saved-jobs.html" class="hover:text-sky-500">Saved Jobs</a></li>
+            <li><a href="applications.html" class="hover:text-sky-500">Track Applications</a></li>
+            <li><a href="recommendations.html" class="hover:text-sky-500">Recommendations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Tools & Support</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="profile.html" class="hover:text-sky-500">Profile</a></li>
+            <li><a href="chatbot.html" class="hover:text-sky-500">Career Assistant</a></li>
+            <li><a href="rate-company.html" class="hover:text-sky-500">Rate Companies</a></li>
+            <li><a href="report-fraud.html" class="hover:text-sky-500">Report Fraud</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Company</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="post-job.html" class="hover:text-sky-500">Post a Job</a></li>
+            <li><a href="verification.html" class="hover:text-sky-500">Verification</a></li>
+            <li><a href="login.html" class="hover:text-sky-500">Employer Login</a></li>
+            <li><a href="register.html" class="hover:text-sky-500">Create Account</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-600">© 2025 HireLy. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // Mock job data - fetch from URL param in production
+    const mockJob = {
+      id: 1,
+      title: 'Senior Frontend Developer',
+      company: 'Google Inc.',
+      companyLogo: 'G',
+      location: 'Jakarta',
+      jobType: 'Full Time',
+      salary: 'Rp 15-25 jt/bln',
+      screeningQuestions: [
+        { id: 1, question: 'How many years of experience do you have with React?', required: true },
+        { id: 2, question: 'Have you worked with Next.js in production applications? Please describe your experience.', required: true },
+        { id: 3, question: 'Are you comfortable working in a hybrid environment (3 days office, 2 days remote)?', required: true }
+      ]
+    };
+
+    let uploadedFile = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadJobInfo();
+      setupEventListeners();
+    });
+
+    function loadJobInfo() {
+      // In production: fetch job details from URL param
+      const jobId = new URLSearchParams(window.location.search).get('jobId');
+      
+      document.getElementById('lblJobTitle').textContent = mockJob.title;
+      document.getElementById('lblCompanyName').textContent = mockJob.company;
+      document.getElementById('divCompanyLogo').textContent = mockJob.companyLogo;
+      document.getElementById('badgeLocation').textContent = mockJob.location;
+      document.getElementById('badgeJobType').textContent = mockJob.jobType;
+      document.getElementById('badgeSalary').textContent = mockJob.salary;
+
+      // Render screening questions
+      const questionsContainer = document.getElementById('screeningQuestions');
+      questionsContainer.innerHTML = mockJob.screeningQuestions.map(q => `
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">
+            ${q.question}
+            ${q.required ? '<span class="text-red-500">*</span>' : ''}
+          </label>
+          <textarea 
+            class="input-field screening-answer" 
+            rows="4" 
+            data-question-id="${q.id}"
+            ${q.required ? 'required' : ''}
+            placeholder="Type your answer here..."
+          ></textarea>
+        </div>
+      `).join('');
+    }
+
+    function setupEventListeners() {
+      // File upload
+      const uploadZone = document.getElementById('uploadZone');
+      const fileInput = document.getElementById('fileResume');
+
+      uploadZone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => handleFileUpload(e.target.files[0]));
+
+      // Drag and drop
+      uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+      });
+
+      uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
+      });
+
+      uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        handleFileUpload(e.dataTransfer.files[0]);
+      });
+
+      // Cover letter character count
+      document.getElementById('txtCoverLetter').addEventListener('input', (e) => {
+        document.getElementById('charCount').textContent = `${e.target.value.length} / 2000`;
+      });
+
+      // Form validation
+      document.getElementById('formApplication').addEventListener('input', updateSubmitButton);
+      document.getElementById('chkConsent').addEventListener('change', updateSubmitButton);
+      document.querySelectorAll('input[name="resumeOption"]').forEach(radio => {
+        radio.addEventListener('change', updateSubmitButton);
+      });
+
+      // Form submission
+      document.getElementById('formApplication').addEventListener('submit', handleSubmit);
+    }
+
+    function handleFileUpload(file) {
+      if (!file) return;
+
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Please upload a PDF, DOC, or DOCX file.');
+        return;
+      }
+
+      // Validate file size (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB.');
+        return;
+      }
+
+      uploadedFile = file;
+
+      // Update UI
+      document.getElementById('uploadZone').classList.add('file-uploaded');
+      document.getElementById('fileInfo').classList.remove('hidden');
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = formatFileSize(file.size);
+
+      updateSubmitButton();
+    }
+
+    function removeFile() {
+      uploadedFile = null;
+      document.getElementById('uploadZone').classList.remove('file-uploaded');
+      document.getElementById('fileInfo').classList.add('hidden');
+      document.getElementById('fileResume').value = '';
+      updateSubmitButton();
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function updateSubmitButton() {
+      const resumeOption = document.querySelector('input[name="resumeOption"]:checked').value;
+      const hasResume = resumeOption === 'existing' || (resumeOption === 'new' && uploadedFile);
+      const startDate = document.getElementById('inputStartDate').value;
+      const consent = document.getElementById('chkConsent').checked;
+
+      const canSubmit = hasResume && startDate && consent;
+      document.getElementById('btnSubmit').disabled = !canSubmit;
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+
+      // Collect form data
+      const formData = {
+        jobId: new URLSearchParams(window.location.search).get('jobId'),
+        resumeOption: document.querySelector('input[name="resumeOption"]:checked').value,
+        resumeFile: uploadedFile,
+        coverLetter: document.getElementById('txtCoverLetter').value,
+        portfolio: document.getElementById('inputPortfolio').value,
+        linkedin: document.getElementById('inputLinkedIn').value,
+        expectedSalary: document.getElementById('inputSalary').value,
+        startDate: document.getElementById('inputStartDate').value,
+        screeningAnswers: Array.from(document.querySelectorAll('.screening-answer')).map(el => ({
+          questionId: el.dataset.questionId,
+          answer: el.value
+        }))
+      };
+
+      // In production: submit to Supabase
+      console.log('Application submitted:', formData);
+
+      // Show success message
+      alert('Application submitted successfully! The employer will review your application and contact you if you\'re a good fit.');
+      
+      // Redirect to jobs page
+      window.location.href = 'jobs.html';
+    }
+  </script>
+
+</body>
+</html>

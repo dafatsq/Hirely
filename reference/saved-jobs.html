@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Jobs - HireLy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    :root {
+      --radius: 20px;
+      --glow-a: rgba(14,165,233,0.25);
+      --glow-b: rgba(99,102,241,0.25);
+    }
+
+    body {
+      background-color: #e9f3ff;
+      background-image:
+        radial-gradient(1400px 700px at 0% -20%, var(--glow-a), transparent 60%),
+        radial-gradient(1400px 700px at 100% -20%, var(--glow-b), transparent 60%);
+      background-repeat: no-repeat;
+      background-attachment: fixed, fixed;
+    }
+
+    .card {
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .btn-primary {
+      border-radius: 9999px;
+      background: #0ea5e9;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-primary:active {
+      filter: brightness(0.9);
+    }
+
+    .btn-secondary {
+      border-radius: 9999px;
+      background: rgba(14, 165, 233, 0.1);
+      color: #0ea5e9;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(14, 165, 233, 0.15);
+    }
+
+    .job-card {
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(2, 6, 23, 0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+
+    .job-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(2, 6, 23, 0.15);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .badge-blue {
+      background: rgba(14, 165, 233, 0.1);
+      color: #0284c7;
+    }
+
+    .badge-green {
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+    }
+
+    .badge-purple {
+      background: rgba(147, 51, 234, 0.1);
+      color: #9333ea;
+    }
+
+    .filter-button {
+      padding: 0.625rem 1.25rem;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      color: #334155;
+      font-size: 0.875rem;
+    }
+
+    .filter-button:hover {
+      background: rgba(14, 165, 233, 0.1);
+      border-color: #0ea5e9;
+      color: #0284c7;
+    }
+
+    .filter-button.active {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: white;
+    }
+
+    .select-field {
+      padding: 0.625rem 1rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #e2e8f0;
+      outline: none;
+      transition: all 0.2s;
+      font-size: 0.875rem;
+      color: #334155;
+    }
+
+    .select-field:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .bookmark-btn {
+      transition: all 0.2s;
+    }
+
+    .bookmark-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .remove-animation {
+      animation: fadeOut 0.3s ease-out forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 2rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+  
+  <!-- Navigation -->
+  <nav class="p-6 md:p-8">
+    <div class="card max-w-7xl mx-auto px-6 py-4">
+      <div class="flex flex-wrap items-center gap-4 justify-between">
+        <div class="flex items-center gap-8">
+          <a href="index.html" class="text-2xl font-bold text-sky-500">HireLy</a>
+          <div class="hidden md:flex gap-6 text-sm font-medium">
+            <a href="index.html" class="text-slate-700 hover:text-sky-500 transition-colors">Home</a>
+            <a href="jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Jobs</a>
+            <a href="saved-jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Saved Jobs</a>
+            <a href="applications.html" class="text-slate-700 hover:text-sky-500 transition-colors">Applications</a>
+            <a href="profile.html" class="text-slate-700 hover:text-sky-500 transition-colors">Profile</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="login.html" class="btn-secondary hidden sm:block">Login</a>
+          <a href="register.html" class="btn-primary">Create Account</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Page Header -->
+  <section class="px-6 md:px-8 mb-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-4">
+        <a href="profile.html" class="text-slate-600 hover:text-sky-500 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </a>
+        <h2 class="text-3xl font-bold text-slate-900">Saved Jobs</h2>
+      </div>
+      <p class="text-slate-600" id="jobCount">0 saved jobs</p>
+    </div>
+  </section>
+
+  <!-- Filters & Sorting -->
+  <section class="px-6 md:px-8 mb-8">
+    <div class="card max-w-7xl mx-auto p-6">
+      <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+        <!-- Filters -->
+        <div class="flex-1 w-full">
+          <h3 class="text-sm font-semibold text-slate-700 mb-3">Filter by Type</h3>
+          <div class="flex flex-wrap gap-2">
+            <button class="filter-button active" data-filter="all">All</button>
+            <button class="filter-button" data-filter="Full Time">Full Time</button>
+            <button class="filter-button" data-filter="Part Time">Part Time</button>
+            <button class="filter-button" data-filter="Contract">Contract</button>
+            <button class="filter-button" data-filter="Remote">Remote</button>
+          </div>
+        </div>
+
+        <!-- Sort -->
+        <div class="w-full lg:w-auto">
+          <h3 class="text-sm font-semibold text-slate-700 mb-3">Sort by</h3>
+          <select id="sortBy" class="select-field w-full lg:w-48">
+            <option value="dateAdded">Date Added (Newest)</option>
+            <option value="dateAddedOld">Date Added (Oldest)</option>
+            <option value="salary">Salary (High to Low)</option>
+            <option value="salaryLow">Salary (Low to High)</option>
+            <option value="company">Company (A-Z)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Saved Jobs Grid -->
+  <section class="px-6 md:px-8 mb-12">
+    <div class="max-w-7xl mx-auto">
+      <!-- Empty State (hidden by default) -->
+      <div id="emptyState" class="card" style="display: none;">
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <svg class="w-16 h-16 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-semibold mb-2 text-slate-900">No Saved Jobs Yet</h3>
+          <p class="text-slate-600 mb-6 max-w-md mx-auto">Start exploring job opportunities and save the ones you're interested in for later.</p>
+          <a href="jobs.html" class="btn-primary inline-block">Browse Jobs</a>
+        </div>
+      </div>
+
+      <!-- Jobs Grid -->
+      <div id="jobsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Jobs will be dynamically inserted here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-6 md:px-8 pb-8">
+    <div class="card max-w-7xl mx-auto p-8 md:p-12">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h4 class="text-xl font-bold text-sky-500 mb-4">HireLy</h4>
+          <p class="text-slate-600 text-sm">Your trusted partner in finding the perfect career opportunity.</p>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">For Job Seekers</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="jobs.html" class="hover:text-sky-500">Browse Jobs</a></li>
+            <li><a href="saved-jobs.html" class="hover:text-sky-500">Saved Jobs</a></li>
+            <li><a href="applications.html" class="hover:text-sky-500">Track Applications</a></li>
+            <li><a href="recommendations.html" class="hover:text-sky-500">Recommendations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Tools & Support</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="profile.html" class="hover:text-sky-500">Profile</a></li>
+            <li><a href="chatbot.html" class="hover:text-sky-500">Career Assistant</a></li>
+            <li><a href="rate-company.html" class="hover:text-sky-500">Rate Companies</a></li>
+            <li><a href="report-fraud.html" class="hover:text-sky-500">Report Fraud</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Company</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="post-job.html" class="hover:text-sky-500">Post a Job</a></li>
+            <li><a href="verification.html" class="hover:text-sky-500">Verification</a></li>
+            <li><a href="login.html" class="hover:text-sky-500">Employer Login</a></li>
+            <li><a href="register.html" class="hover:text-sky-500">Create Account</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-600">© 2025 HireLy. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // Mock saved jobs data - In production, this would come from Supabase
+    let savedJobs = [
+      {
+        id: 1,
+        title: "Senior Frontend Developer",
+        company: "Google Inc.",
+        companyLogo: "G",
+        location: "Jakarta",
+        jobType: "Full Time",
+        workMode: "Remote",
+        salary: "Rp 15-25 jt/bln",
+        salaryMin: 15000000,
+        skills: ["React", "TypeScript", "Next.js"],
+        dateAdded: "2025-01-15",
+        verified: true
+      },
+      {
+        id: 2,
+        title: "Product Designer",
+        company: "Microsoft",
+        companyLogo: "M",
+        location: "Remote",
+        jobType: "Full Time",
+        workMode: "Remote",
+        salary: "Rp 12-20 jt/bln",
+        salaryMin: 12000000,
+        skills: ["Figma", "UI/UX", "Design Systems"],
+        dateAdded: "2025-01-14",
+        verified: true
+      },
+      {
+        id: 3,
+        title: "Full Stack Engineer",
+        company: "Amazon",
+        companyLogo: "A",
+        location: "Surabaya",
+        jobType: "Contract",
+        workMode: "Hybrid",
+        salary: "Rp 18-28 jt/bln",
+        salaryMin: 18000000,
+        skills: ["Node.js", "Python", "AWS"],
+        dateAdded: "2025-01-13",
+        verified: false
+      },
+      {
+        id: 4,
+        title: "Data Scientist",
+        company: "Netflix",
+        companyLogo: "N",
+        location: "Bandung",
+        jobType: "Full Time",
+        workMode: "On-site",
+        salary: "Rp 20-30 jt/bln",
+        salaryMin: 20000000,
+        skills: ["Python", "ML", "TensorFlow"],
+        dateAdded: "2025-01-12",
+        verified: true
+      },
+      {
+        id: 5,
+        title: "Mobile Developer",
+        company: "Adobe",
+        companyLogo: "A",
+        location: "Remote",
+        jobType: "Part Time",
+        workMode: "Remote",
+        salary: "Rp 14-22 jt/bln",
+        salaryMin: 14000000,
+        skills: ["React Native", "iOS", "Android"],
+        dateAdded: "2025-01-11",
+        verified: false
+      },
+      {
+        id: 6,
+        title: "DevOps Engineer",
+        company: "Spotify",
+        companyLogo: "S",
+        location: "Jakarta",
+        jobType: "Full Time",
+        workMode: "Hybrid",
+        salary: "Rp 16-24 jt/bln",
+        salaryMin: 16000000,
+        skills: ["Docker", "Kubernetes", "CI/CD"],
+        dateAdded: "2025-01-10",
+        verified: true
+      }
+    ];
+
+    let currentFilter = 'all';
+    let currentSort = 'dateAdded';
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      setupEventListeners();
+      renderJobs();
+    });
+
+    function setupEventListeners() {
+      // Filter buttons
+      const filterButtons = document.querySelectorAll('.filter-button');
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+          currentFilter = this.getAttribute('data-filter');
+          renderJobs();
+        });
+      });
+
+      // Sort dropdown
+      document.getElementById('sortBy').addEventListener('change', function() {
+        currentSort = this.value;
+        renderJobs();
+      });
+    }
+
+    function renderJobs() {
+      const jobsGrid = document.getElementById('jobsGrid');
+      const emptyState = document.getElementById('emptyState');
+      const jobCount = document.getElementById('jobCount');
+
+      // Filter jobs
+      let filteredJobs = savedJobs;
+      if (currentFilter !== 'all') {
+        if (currentFilter === 'Remote') {
+          filteredJobs = savedJobs.filter(job => job.workMode === 'Remote');
+        } else {
+          filteredJobs = savedJobs.filter(job => job.jobType === currentFilter);
+        }
+      }
+
+      // Sort jobs
+      filteredJobs = [...filteredJobs].sort((a, b) => {
+        switch(currentSort) {
+          case 'dateAdded':
+            return new Date(b.dateAdded) - new Date(a.dateAdded);
+          case 'dateAddedOld':
+            return new Date(a.dateAdded) - new Date(b.dateAdded);
+          case 'salary':
+            return b.salaryMin - a.salaryMin;
+          case 'salaryLow':
+            return a.salaryMin - b.salaryMin;
+          case 'company':
+            return a.company.localeCompare(b.company);
+          default:
+            return 0;
+        }
+      });
+
+      // Update count
+      jobCount.textContent = `${filteredJobs.length} saved ${filteredJobs.length === 1 ? 'job' : 'jobs'}`;
+
+      // Show empty state or jobs
+      if (filteredJobs.length === 0) {
+        jobsGrid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      jobsGrid.style.display = 'grid';
+      emptyState.style.display = 'none';
+
+      // Render job cards
+      jobsGrid.innerHTML = filteredJobs.map(job => createJobCard(job)).join('');
+    }
+
+    function createJobCard(job) {
+      const logoColors = {
+        'G': 'from-sky-400 to-sky-600',
+        'M': 'from-purple-400 to-purple-600',
+        'A': 'from-indigo-400 to-indigo-600',
+        'N': 'from-pink-400 to-pink-600',
+        'S': 'from-green-400 to-green-600',
+        'default': 'from-orange-400 to-orange-600'
+      };
+
+      const logoColor = logoColors[job.companyLogo] || logoColors['default'];
+      const typeColor = job.jobType === 'Full Time' ? 'badge-green' : (job.jobType === 'Part Time' ? 'badge-blue' : 'badge-purple');
+
+      return `
+        <div class="job-card p-6" data-job-id="${job.id}">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${logoColor} flex items-center justify-center text-white font-bold text-xl">
+              ${job.companyLogo}
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="badge ${typeColor}">${job.jobType}</span>
+              <button onclick="removeJob(${job.id})" class="bookmark-btn p-2 hover:bg-red-50 rounded-lg transition-colors" title="Remove from saved">
+                <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <a href="job-detail.html?id=${job.id}" class="block">
+            <h4 class="text-xl font-semibold mb-2 hover:text-sky-500 transition-colors">${job.title}</h4>
+          </a>
+          <div class="flex items-center gap-2 mb-4">
+            <p class="text-slate-600 text-sm">${job.company}</p>
+            ${job.verified ? `
+              <svg class="w-4 h-4 text-sky-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            ` : ''}
+          </div>
+          <div class="flex flex-wrap gap-2 mb-4">
+            ${job.skills.map(skill => `<span class="badge badge-blue">${skill}</span>`).join('')}
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-1 text-sm text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <span>${job.location}</span>
+            </div>
+            <span class="text-sky-500 font-semibold text-sm">${job.salary}</span>
+          </div>
+          <div class="mt-3 text-xs text-slate-500">
+            Saved on ${formatDate(job.dateAdded)}
+          </div>
+        </div>
+      `;
+    }
+
+    function removeJob(jobId) {
+      if (!confirm('Are you sure you want to remove this job from your saved list?')) {
+        return;
+      }
+
+      // Find and animate the card
+      const card = document.querySelector(`[data-job-id="${jobId}"]`);
+      if (card) {
+        card.classList.add('remove-animation');
+        
+        // Wait for animation to complete before removing
+        setTimeout(() => {
+          // Remove from array
+          savedJobs = savedJobs.filter(job => job.id !== jobId);
+          
+          // Re-render
+          renderJobs();
+          
+          // Show toast notification
+          showToast('Job removed from saved list');
+        }, 300);
+      }
+
+      // In production, this would also update Supabase:
+      // await supabase.from('saved_jobs').delete().eq('id', jobId).eq('user_id', currentUserId);
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    }
+
+    function showToast(message) {
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-6 right-6 bg-slate-900 text-white px-6 py-3 rounded-full shadow-lg z-50 transition-all';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      // Animate in
+      setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+      }, 10);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function logout() {
+      // In production, this would clear session and redirect to login
+      if (confirm('Are you sure you want to logout?')) {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+
+</body>
+</html>

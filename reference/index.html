@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HireLy - Find Your Dream Job</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    :root {
+      --radius: 20px;
+      --glow-a: rgba(14,165,233,0.25);
+      --glow-b: rgba(99,102,241,0.25);
+    }
+
+    body {
+      background-color: #e9f3ff;
+      background-image:
+        radial-gradient(1400px 700px at 0% -20%, var(--glow-a), transparent 60%),
+        radial-gradient(1400px 700px at 100% -20%, var(--glow-b), transparent 60%);
+      background-repeat: no-repeat;
+      background-attachment: fixed, fixed;
+    }
+
+    .card {
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .btn-primary {
+      border-radius: 9999px;
+      background: #0ea5e9;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-primary:active {
+      filter: brightness(0.9);
+    }
+
+    .btn-secondary {
+      border-radius: 9999px;
+      background: rgba(14, 165, 233, 0.1);
+      color: #0ea5e9;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(14, 165, 233, 0.15);
+    }
+
+    .input {
+      width: 100%;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid #e2e8f0;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input:focus {
+      ring: 2px;
+      ring-color: rgba(14, 165, 233, 0.5);
+      border-color: #0ea5e9;
+    }
+
+    .job-card {
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(2, 6, 23, 0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+
+    .job-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(2, 6, 23, 0.15);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .badge-blue {
+      background: rgba(14, 165, 233, 0.1);
+      color: #0284c7;
+    }
+
+    .badge-green {
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+    }
+
+    .badge-purple {
+      background: rgba(147, 51, 234, 0.1);
+      color: #9333ea;
+    }
+
+    .category-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .category-chip:hover {
+      background: rgba(14, 165, 233, 0.1);
+      border-color: #0ea5e9;
+      color: #0284c7;
+    }
+
+    .stat-card {
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      color: white;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+  
+  <!-- Navigation -->
+  <nav class="p-6 md:p-8">
+    <div class="card max-w-7xl mx-auto px-6 py-4">
+      <div class="flex flex-wrap items-center gap-4 justify-between">
+        <div class="flex items-center gap-8">
+          <a href="index.html" class="text-2xl font-bold text-sky-500">HireLy</a>
+          <div class="hidden md:flex gap-6 text-sm font-medium">
+            <a href="index.html" class="text-slate-700 hover:text-sky-500 transition-colors">Home</a>
+            <a href="jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Jobs</a>
+            <a href="saved-jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Saved Jobs</a>
+            <a href="applications.html" class="text-slate-700 hover:text-sky-500 transition-colors">Applications</a>
+            <a href="profile.html" class="text-slate-700 hover:text-sky-500 transition-colors">Profile</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="login.html" class="btn-secondary hidden sm:block">Login</a>
+          <a href="register.html" class="btn-primary">Create Account</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Hero Section -->
+  <section class="px-6 md:px-8 mb-12">
+    <div class="card max-w-7xl mx-auto p-8 md:p-12 text-center">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-sky-500 to-indigo-500 bg-clip-text text-transparent">
+        Find Your Dream Job Today
+      </h2>
+      <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+        Discover thousands of job opportunities with all the information you need. It's your future.
+      </p>
+      
+      <!-- Search Bar -->
+      <div class="flex flex-col md:flex-row gap-3 max-w-4xl mx-auto mb-8">
+        <div class="flex-1 relative">
+          <input 
+            type="text" 
+            placeholder="Job title, keywords, or company" 
+            class="input pl-12"
+          />
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <div class="flex-1 relative">
+          <input 
+            type="text" 
+            placeholder="City, state, or remote" 
+            class="input pl-12"
+          />
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </div>
+        <button class="btn-primary px-8">Search Jobs</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+        <div class="p-4">
+          <div class="text-3xl font-bold text-sky-500">10K+</div>
+          <div class="text-sm text-slate-600">Active Jobs</div>
+        </div>
+        <div class="p-4">
+          <div class="text-3xl font-bold text-sky-500">5K+</div>
+          <div class="text-sm text-slate-600">Companies</div>
+        </div>
+        <div class="p-4">
+          <div class="text-3xl font-bold text-sky-500">50K+</div>
+          <div class="text-sm text-slate-600">Job Seekers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Chips -->
+  <section class="px-6 md:px-8 mb-12">
+    <div class="max-w-7xl mx-auto">
+      <h3 class="text-2xl font-semibold mb-6 text-center">Filter Jobs By</h3>
+      <div class="flex flex-wrap justify-center gap-3">
+        <a href="jobs.html?location=jakarta" class="category-chip">
+          <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>Jakarta</span>
+        </a>
+        <a href="jobs.html?location=surabaya" class="category-chip">
+          <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>Surabaya</span>
+        </a>
+        <a href="jobs.html?location=bandung" class="category-chip">
+          <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>Bandung</span>
+        </a>
+        <a href="jobs.html?type=full-time" class="category-chip">
+          <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          <span>Full-Time</span>
+        </a>
+        <a href="jobs.html?type=part-time" class="category-chip">
+          <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Part-Time</span>
+        </a>
+        <a href="jobs.html?type=remote" class="category-chip">
+          <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+          </svg>
+          <span>Remote</span>
+        </a>
+        <a href="jobs.html?salary=high" class="category-chip">
+          <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>High Salary</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Priority Jobs -->
+  <section class="px-6 md:px-8 mb-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-semibold">Priority Jobs</h3>
+        <a href="jobs.html" class="text-sky-500 hover:text-sky-600 font-medium">View All →</a>
+      </div>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Job Card 1 -->
+        <div class="job-card p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-xl">
+              G
+            </div>
+            <span class="badge badge-green">Full Time</span>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Senior Frontend Developer</h4>
+          <p class="text-slate-600 text-sm mb-4">Google Inc.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="badge badge-blue">React</span>
+            <span class="badge badge-blue">TypeScript</span>
+            <span class="badge badge-blue">Next.js</span>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-1 text-sm text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <span>Jakarta</span>
+            </div>
+            <span class="text-sky-500 font-semibold">Rp 15-25 jt/bln</span>
+          </div>
+        </div>
+
+        <!-- Job Card 2 -->
+        <div class="job-card p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+              M
+            </div>
+            <span class="badge badge-green">Full Time</span>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Product Designer</h4>
+          <p class="text-slate-600 text-sm mb-4">Microsoft</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="badge badge-purple">Figma</span>
+            <span class="badge badge-purple">UI/UX</span>
+            <span class="badge badge-purple">Design Systems</span>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-1 text-sm text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <span>Remote</span>
+            </div>
+            <span class="text-sky-500 font-semibold">Rp 12-20 jt/bln</span>
+          </div>
+        </div>
+
+        <!-- Job Card 3 -->
+        <div class="job-card p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+              A
+            </div>
+            <span class="badge badge-blue">Contract</span>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Full Stack Engineer</h4>
+          <p class="text-slate-600 text-sm mb-4">Amazon</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="badge badge-blue">Node.js</span>
+            <span class="badge badge-blue">Python</span>
+            <span class="badge badge-blue">AWS</span>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-1 text-sm text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <span>Surabaya</span>
+            </div>
+            <span class="text-sky-500 font-semibold">Rp 18-28 jt/bln</span>
+          </div>
+        </div>
+
+        <!-- Job Card 4 -->
+        <div class="job-card p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-bold text-xl">
+              N
+            </div>
+            <span class="badge badge-green">Full Time</span>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Data Scientist</h4>
+          <p class="text-slate-600 text-sm mb-4">Netflix</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="badge badge-purple">Python</span>
+            <span class="badge badge-purple">ML</span>
+            <span class="badge badge-purple">TensorFlow</span>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-1 text-sm text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <span>Bandung</span>
+            </div>
+            <span class="text-sky-500 font-semibold">Rp 20-30 jt/bln</span>
+          </div>
+        </div>
+
+        <!-- Job Card 5 -->
+        <div class="job-card p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-xl">
+              S
+            </div>
+            <span class="badge badge-green">Full Time</span>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Marketing Manager</h4>
+          <p class="text-slate-600 text-sm mb-4">Spotify</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="badge badge-green">SEO</span>
+            <span class="badge badge-green">Content</span>
+            <span class="badge badge-green">Analytics</span>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-1 text-sm text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <span>Jakarta</span>
+            </div>
+            <span class="text-sky-500 font-semibold">Rp 10-18 jt/bln</span>
+          </div>
+        </div>
+
+        <!-- Job Card 6 -->
+        <div class="job-card p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-xl">
+              A
+            </div>
+            <span class="badge badge-blue">Part Time</span>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Mobile Developer</h4>
+          <p class="text-slate-600 text-sm mb-4">Adobe</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="badge badge-blue">React Native</span>
+            <span class="badge badge-blue">iOS</span>
+            <span class="badge badge-blue">Android</span>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-1 text-sm text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <span>Remote</span>
+            </div>
+            <span class="text-sky-500 font-semibold">Rp 14-22 jt/bln</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="px-6 md:px-8 mb-12">
+    <div class="card max-w-7xl mx-auto p-8 md:p-12">
+      <h3 class="text-2xl font-semibold mb-8 text-center">How It Works</h3>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+            1
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Create Account</h4>
+          <p class="text-slate-600">Sign up and build your professional profile in minutes</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+            2
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Search & Apply</h4>
+          <p class="text-slate-600">Browse thousands of jobs and apply with one click</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+            3
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Get Hired</h4>
+          <p class="text-slate-600">Connect with employers and land your dream job</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="px-6 md:px-8 mb-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="stat-card text-center">
+        <h3 class="text-3xl font-bold mb-4">Ready to Start Your Journey?</h3>
+        <p class="text-lg mb-6 opacity-90">Join thousands of job seekers who found their dream careers through HireLy</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <button class="bg-white text-sky-500 font-semibold px-8 py-3 rounded-full hover:bg-slate-50 transition-all">
+            Create Free Account
+          </button>
+          <button class="bg-transparent border-2 border-white text-white font-semibold px-8 py-3 rounded-full hover:bg-white/10 transition-all">
+            Browse Jobs
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-6 md:px-8 pb-8">
+    <div class="card max-w-7xl mx-auto p-8 md:p-12">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h4 class="text-xl font-bold text-sky-500 mb-4">HireLy</h4>
+          <p class="text-slate-600 text-sm">Your trusted partner in finding the perfect career opportunity.</p>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">For Job Seekers</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="jobs.html" class="hover:text-sky-500">Browse Jobs</a></li>
+            <li><a href="saved-jobs.html" class="hover:text-sky-500">Saved Jobs</a></li>
+            <li><a href="applications.html" class="hover:text-sky-500">Track Applications</a></li>
+            <li><a href="recommendations.html" class="hover:text-sky-500">Recommendations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Tools & Support</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="profile.html" class="hover:text-sky-500">Profile</a></li>
+            <li><a href="chatbot.html" class="hover:text-sky-500">Career Assistant</a></li>
+            <li><a href="rate-company.html" class="hover:text-sky-500">Rate Companies</a></li>
+            <li><a href="report-fraud.html" class="hover:text-sky-500">Report Fraud</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Company</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="post-job.html" class="hover:text-sky-500">Post a Job</a></li>
+            <li><a href="verification.html" class="hover:text-sky-500">Verification</a></li>
+            <li><a href="login.html" class="hover:text-sky-500">Employer Login</a></li>
+            <li><a href="register.html" class="hover:text-sky-500">Create Account</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-600">© 2025 HireLy. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+</body>
+</html>

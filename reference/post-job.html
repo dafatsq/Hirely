@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post a Job - HireLy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    :root {
+      --radius: 20px;
+      --glow-a: rgba(14,165,233,0.25);
+      --glow-b: rgba(99,102,241,0.25);
+    }
+
+    body {
+      background-color: #e9f3ff;
+      background-image:
+        radial-gradient(1400px 700px at 0% -20%, var(--glow-a), transparent 60%),
+        radial-gradient(1400px 700px at 100% -20%, var(--glow-b), transparent 60%);
+      background-repeat: no-repeat;
+      background-attachment: fixed, fixed;
+    }
+
+    .card {
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .btn-primary {
+      border-radius: 9999px;
+      background: #0ea5e9;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-primary:active {
+      filter: brightness(0.9);
+    }
+
+    .btn-secondary {
+      border-radius: 9999px;
+      background: rgba(14, 165, 233, 0.1);
+      color: #0ea5e9;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(14, 165, 233, 0.15);
+    }
+
+    .btn-outline {
+      border-radius: 9999px;
+      background: transparent;
+      color: #334155;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-outline:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .input {
+      width: 100%;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid #e2e8f0;
+      padding: 0.875rem 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    textarea.input {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    select.input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23334155'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1.25rem;
+      padding-right: 2.5rem;
+    }
+
+    .section-card {
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(2, 6, 23, 0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tag-input-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid #e2e8f0;
+      min-height: 48px;
+      align-items: center;
+    }
+
+    .tag-input-container:focus-within {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(14, 165, 233, 0.1);
+      color: #0284c7;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .tag button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(14, 165, 233, 0.2);
+      color: #0284c7;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tag button:hover {
+      background: rgba(14, 165, 233, 0.3);
+    }
+
+    .tag-input-container input {
+      flex: 1;
+      min-width: 120px;
+      border: none;
+      outline: none;
+      background: transparent;
+      padding: 0.25rem;
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .step {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #64748b;
+      transition: all 0.3s;
+    }
+
+    .step.active {
+      background: #0ea5e9;
+      color: white;
+    }
+
+    .step.completed {
+      background: #10b981;
+      color: white;
+    }
+
+    .step-line {
+      width: 60px;
+      height: 2px;
+      background: #e2e8f0;
+    }
+
+    .step-line.completed {
+      background: #10b981;
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+  
+  <!-- Navigation -->
+  <nav class="p-6 md:p-8">
+    <div class="card max-w-7xl mx-auto px-6 py-4">
+      <div class="flex flex-wrap items-center gap-4 justify-between">
+        <div class="flex items-center gap-8">
+          <a href="index.html" class="text-2xl font-bold text-sky-500">HireLy</a>
+          <div class="hidden md:flex gap-6 text-sm font-medium">
+            <a href="index.html" class="text-slate-700 hover:text-sky-500 transition-colors">Home</a>
+            <a href="jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Jobs</a>
+            <a href="saved-jobs.html" class="text-slate-700 hover:text-sky-500 transition-colors">Saved Jobs</a>
+            <a href="applications.html" class="text-slate-700 hover:text-sky-500 transition-colors">Applications</a>
+            <a href="profile.html" class="text-slate-700 hover:text-sky-500 transition-colors">Profile</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="login.html" class="btn-secondary hidden sm:block">Login</a>
+          <a href="register.html" class="btn-primary">Create Account</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Main Content -->
+  <section class="px-6 md:px-8 py-12">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Header -->
+      <div class="card p-8 mb-8">
+        <h1 class="text-3xl font-bold mb-2">Post a Job</h1>
+        <p class="text-slate-600">Fill in the details below to post your job vacancy</p>
+      </div>
+
+      <!-- Form -->
+      <form>
+        <!-- Basic Information -->
+        <div class="section-card">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-sm font-bold">
+              1
+            </div>
+            <span>Basic Information</span>
+          </h2>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="txtJobTitle" class="block text-sm font-medium text-slate-700 mb-2">Job Title</label>
+              <input 
+                type="text" 
+                id="txtJobTitle"
+                name="txtJobTitle"
+                placeholder="e.g. Project Manager" 
+                class="input"
+                maxlength="100"
+                required
+              />
+              <p class="text-xs text-slate-500 mt-1">Maximum 100 characters, should not be ALL CAPS</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label for="selExperience" class="block text-sm font-medium text-slate-700 mb-2">Years of Experience</label>
+                <select id="selExperience" name="selExperience" class="input" required>
+                  <option value="">Select experience</option>
+                  <option value="0-1">0-1 years</option>
+                  <option value="1-3">1-3 years</option>
+                  <option value="3-5">3-5 years</option>
+                  <option value="5+">5+ years</option>
+                </select>
+              </div>
+              <div>
+                <label for="selJobType" class="block text-sm font-medium text-slate-700 mb-2">Employment Type</label>
+                <select id="selJobType" name="selJobType" class="input" required>
+                  <option value="">Select type</option>
+                  <option>Full-Time</option>
+                  <option>Part-Time</option>
+                  <option>Internship</option>
+                  <option>Contract</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="selWorkMode" class="block text-sm font-medium text-slate-700 mb-2">Work Arrangement</label>
+              <select id="selWorkMode" name="selWorkMode" class="input" required>
+                <option value="">Select work mode</option>
+                <option>On-Site</option>
+                <option>Hybrid</option>
+                <option>Remote</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location & Salary -->
+        <div class="section-card">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+              2
+            </div>
+            <span>Location & Compensation</span>
+          </h2>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="txtLocation" class="block text-sm font-medium text-slate-700 mb-2">Location</label>
+              <input 
+                type="text" 
+                id="txtLocation"
+                name="txtLocation"
+                placeholder="Autocomplete Google Places, optional if Remote" 
+                class="input"
+              />
+              <p class="text-xs text-slate-500 mt-1">Leave empty if work mode is Remote</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label for="txtSalaryMin" class="block text-sm font-medium text-slate-700 mb-2">Min Salary (IDR)</label>
+                <input 
+                  type="number" 
+                  id="txtSalaryMin"
+                  name="txtSalaryMin"
+                  placeholder="Optional, positive number" 
+                  min="0"
+                  class="input"
+                />
+              </div>
+              <div>
+                <label for="txtSalaryMax" class="block text-sm font-medium text-slate-700 mb-2">Max Salary (IDR)</label>
+                <input 
+                  type="number" 
+                  id="txtSalaryMax"
+                  name="txtSalaryMax"
+                  placeholder="Optional, must be ≥ min" 
+                  min="0"
+                  class="input"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Description -->
+        <div class="section-card">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+              3
+            </div>
+            <span>Job Description</span>
+          </h2>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="txtDescription" class="block text-sm font-medium text-slate-700 mb-2">Job Description</label>
+              <textarea 
+                id="txtDescription"
+                name="txtDescription"
+                class="input" 
+                placeholder="Detailed job summary and responsibilities..."
+                required
+                style="min-height: 150px;"
+              ></textarea>
+              <p class="text-xs text-slate-500 mt-1">Comprehensive job details (rich text area)</p>
+            </div>
+
+            <div>
+              <label for="txtRequirements" class="block text-sm font-medium text-slate-700 mb-2">Requirements</label>
+              <textarea 
+                id="txtRequirements"
+                name="txtRequirements"
+                class="input" 
+                placeholder="• Required qualifications&#10;• Skills needed&#10;• Education requirements"
+                required
+                style="min-height: 150px;"
+              ></textarea>
+              <p class="text-xs text-slate-500 mt-1">Bullet list of qualifications</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills & Requirements -->
+        <div class="section-card">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold">
+              4
+            </div>
+            <span>Skills & Requirements</span>
+          </h2>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="tagSkills" class="block text-sm font-medium text-slate-700 mb-2">Skills Needed</label>
+              <div class="tag-input-container" id="tagSkills">
+                <input 
+                  type="text" 
+                  placeholder="Type skill and press Enter" 
+                  id="skillInput"
+                />
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Chip-based input (e.g., Figma, React). Press Enter to add skills</p>
+            </div>
+
+            <div>
+              <label for="numSlots" class="block text-sm font-medium text-slate-700 mb-2">Priority Slots</label>
+              <input 
+                type="number" 
+                id="numSlots"
+                name="numSlots"
+                placeholder="Priority number (0-10)" 
+                min="0"
+                max="10"
+                class="input"
+              />
+              <p class="text-xs text-slate-500 mt-1">Priority ranking (0-10), affects search result positioning</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message Display -->
+        <div id="lblError" class="section-card hidden">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p class="text-sm text-red-600"></p>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="card p-6">
+          <div class="flex flex-col sm:flex-row gap-3 justify-end">
+            <button type="button" id="btnPreview" name="btnPreview" class="btn-secondary">
+              Preview
+            </button>
+            <button type="submit" id="btnPublish" name="btnPublish" class="btn-primary px-8">
+              Publish
+            </button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-6 md:px-8 pb-8">
+    <div class="card max-w-7xl mx-auto p-8 md:p-12">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h4 class="text-xl font-bold text-sky-500 mb-4">HireLy</h4>
+          <p class="text-slate-600 text-sm">Your trusted partner in finding the perfect career opportunity.</p>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">For Job Seekers</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="jobs.html" class="hover:text-sky-500">Browse Jobs</a></li>
+            <li><a href="saved-jobs.html" class="hover:text-sky-500">Saved Jobs</a></li>
+            <li><a href="applications.html" class="hover:text-sky-500">Track Applications</a></li>
+            <li><a href="recommendations.html" class="hover:text-sky-500">Recommendations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Tools & Support</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="profile.html" class="hover:text-sky-500">Profile</a></li>
+            <li><a href="chatbot.html" class="hover:text-sky-500">Career Assistant</a></li>
+            <li><a href="rate-company.html" class="hover:text-sky-500">Rate Companies</a></li>
+            <li><a href="report-fraud.html" class="hover:text-sky-500">Report Fraud</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="font-semibold mb-3">Company</h5>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li><a href="post-job.html" class="hover:text-sky-500">Post a Job</a></li>
+            <li><a href="verification.html" class="hover:text-sky-500">Verification</a></li>
+            <li><a href="login.html" class="hover:text-sky-500">Employer Login</a></li>
+            <li><a href="register.html" class="hover:text-sky-500">Create Account</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-600">© 2025 HireLy. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+            </svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-sky-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // Skills tag input functionality
+    const skillInput = document.getElementById('skillInput');
+    const skillsContainer = document.getElementById('tagSkills');
+    const skills = [];
+
+    skillInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const skill = this.value.trim();
+        if (skill && !skills.includes(skill)) {
+          skills.push(skill);
+          addSkillTag(skill);
+          this.value = '';
+        }
+      }
+    });
+
+    function addSkillTag(skill) {
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.innerHTML = `
+        <span>${skill}</span>
+        <button type="button" onclick="removeSkill('${skill}', this)">×</button>
+      `;
+      skillsContainer.insertBefore(tag, skillInput);
+    }
+
+    function removeSkill(skill, button) {
+      const index = skills.indexOf(skill);
+      if (index > -1) {
+        skills.splice(index, 1);
+      }
+      button.parentElement.remove();
+    }
+
+    // Error display function
+    function showError(message) {
+      const errorDiv = document.getElementById('lblError');
+      const errorText = errorDiv.querySelector('p');
+      errorText.textContent = message;
+      errorDiv.classList.remove('hidden');
+      errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        errorDiv.classList.add('hidden');
+      }, 5000);
+    }
+
+    function hideError() {
+      const errorDiv = document.getElementById('lblError');
+      errorDiv.classList.add('hidden');
+    }
+
+    // Preview button
+    document.getElementById('btnPreview').addEventListener('click', function() {
+      hideError();
+      
+      // Collect all form data
+      const jobTitle = document.getElementById('txtJobTitle').value.trim();
+      const experience = document.getElementById('selExperience').value;
+      const jobType = document.getElementById('selJobType').value;
+      const workMode = document.getElementById('selWorkMode').value;
+      const location = document.getElementById('txtLocation').value.trim();
+      const salaryMin = document.getElementById('txtSalaryMin').value;
+      const salaryMax = document.getElementById('txtSalaryMax').value;
+      const description = document.getElementById('txtDescription').value.trim();
+      const requirements = document.getElementById('txtRequirements').value.trim();
+      
+      // Basic validation
+      if (!jobTitle) {
+        showError('Job Title is required.');
+        return;
+      }
+      
+      if (jobTitle.length > 100) {
+        showError('Job Title must not exceed 100 characters.');
+        return;
+      }
+      
+      // DPPL: Judul tidak boleh hanya huruf kapital (cannot be all caps)
+      if (jobTitle === jobTitle.toUpperCase() && /[A-Z]/.test(jobTitle)) {
+        showError('Job Title cannot be all capital letters.');
+        return;
+      }
+      
+      if (!experience || !jobType || !workMode) {
+        showError('Please fill in all required fields.');
+        return;
+      }
+      
+      if (workMode !== 'Remote' && !location) {
+        showError('Location is required for On-Site and Hybrid work arrangements.');
+        return;
+      }
+      
+      if (salaryMin && salaryMax && parseFloat(salaryMax) < parseFloat(salaryMin)) {
+        showError('Maximum salary must be greater than or equal to minimum salary.');
+        return;
+      }
+      
+      // DPPL: Deskripsi wajib ≥ 100 karakter
+      if (!description || description.length < 100) {
+        showError('Job Description must be at least 100 characters.');
+        return;
+      }
+      
+      if (!requirements) {
+        showError('Requirements are required.');
+        return;
+      }
+      
+      if (skills.length === 0) {
+        showError('Please add at least one skill.');
+        return;
+      }
+      
+      // Show preview modal (simplified for demo)
+      const previewText = `
+Job Title: ${jobTitle}
+Experience: ${experience}
+Type: ${jobType}
+Work Mode: ${workMode}
+Location: ${location || 'Remote'}
+Salary: ${salaryMin ? 'IDR ' + salaryMin : ''} ${salaryMax ? '- IDR ' + salaryMax : ''}
+Description: ${description}
+Requirements: ${requirements}
+Skills: ${skills.join(', ')}
+      `.trim();
+      
+      alert('Preview:\n\n' + previewText + '\n\nClick OK to return to editing.');
+    });
+
+    // Form submission (Publish button)
+    document.querySelector('form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      hideError();
+      
+      // Collect all form data
+      const jobTitle = document.getElementById('txtJobTitle').value.trim();
+      const experience = document.getElementById('selExperience').value;
+      const jobType = document.getElementById('selJobType').value;
+      const workMode = document.getElementById('selWorkMode').value;
+      const location = document.getElementById('txtLocation').value.trim();
+      const salaryMin = document.getElementById('txtSalaryMin').value;
+      const salaryMax = document.getElementById('txtSalaryMax').value;
+      const description = document.getElementById('txtDescription').value.trim();
+      const requirements = document.getElementById('txtRequirements').value.trim();
+      const slots = document.getElementById('numSlots').value;
+      
+      // Validation - A1: Check for empty required fields
+      if (!jobTitle) {
+        showError('Job Title is required.');
+        return;
+      }
+      
+      if (jobTitle.length > 100) {
+        showError('Job Title must not exceed 100 characters.');
+        return;
+      }
+      
+      // DPPL: Judul tidak boleh hanya huruf kapital (cannot be all caps)
+      if (jobTitle === jobTitle.toUpperCase() && /[A-Z]/.test(jobTitle)) {
+        showError('Job Title cannot be all capital letters.');
+        return;
+      }
+      
+      if (!experience || !jobType || !workMode) {
+        showError('Please fill in all required fields (Experience, Employment Type, Work Arrangement).');
+        return;
+      }
+      
+      // Validation - Location required for non-remote jobs
+      if (workMode !== 'Remote' && !location) {
+        showError('Location is required for On-Site and Hybrid work arrangements.');
+        return;
+      }
+      
+      // Validation - Salary range
+      if (salaryMin && salaryMax) {
+        if (parseFloat(salaryMax) < parseFloat(salaryMin)) {
+          showError('Maximum salary must be greater than or equal to minimum salary.');
+          return;
+        }
+      }
+      
+      // DPPL: Deskripsi wajib ≥ 100 karakter
+      if (!description || description.length < 100) {
+        showError('Job Description must be at least 100 characters.');
+        return;
+      }
+      
+      if (!requirements) {
+        showError('Requirements are required.');
+        return;
+      }
+      
+      if (skills.length === 0) {
+        showError('Please add at least one skill.');
+        return;
+      }
+      
+      // Validation - A2: Check employer verification (simulated)
+      // In production, this would be checked via API
+      const isEmployerVerified = true; // Simulated - would come from backend
+      if (!isEmployerVerified) {
+        showError('Your employer account must be verified before posting jobs. Please contact support.');
+        return;
+      }
+      
+      // Validation - A3: Check slot quota (simulated)
+      // In production, this would be checked via API
+      const activeJobsCount = 0; // Simulated - would come from backend
+      const maxSlots = 10; // Basic tier limit
+      if (activeJobsCount >= maxSlots) {
+        showError('You have reached the maximum number of active job postings (10). Please upgrade your plan or deactivate existing jobs.');
+        return;
+      }
+      
+      // Validation - Priority slots
+      if (slots && (parseInt(slots) < 0 || parseInt(slots) > 10)) {
+        showError('Priority Slots must be between 0 and 10.');
+        return;
+      }
+      
+      // A4: Server error handling (simulated)
+      // In production, this would be an actual API call
+      const serverAvailable = true; // Simulated
+      if (!serverAvailable) {
+        showError('Server error. Please try again later or contact support if the problem persists.');
+        return;
+      }
+      
+      // If all validations pass, show success message
+      alert('Job posted successfully!\n\nYour job posting is now live and visible to job seekers.');
+      
+      // In production, would redirect to employer dashboard
+      // window.location.href = 'employer-dashboard.html';
+    });
+  </script>
+
+</body>
+</html>
