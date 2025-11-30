@@ -32,12 +32,13 @@ export async function POST(request: Request) {
       success: true,
       application: applicationData,
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   const supabase = await createClient()
 
   const {
@@ -50,10 +51,11 @@ export async function GET(request: Request) {
 
   try {
     // TODO: Fetch from job_applications table
-    const applications = []
+    const applications: unknown[] = []
 
     return NextResponse.json({ applications })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }

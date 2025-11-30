@@ -21,8 +21,57 @@ export default function ChatbotPage() {
   const [input, setInput] = useState('')
   const [initialized, setInitialized] = useState(false)
 
+  const checkUserRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role === 'admin') {
+      router.push('/admin')
+      return
+    }
+
+    setUserRole(profile?.role || null)
+    setLoading(false)
+  }
+
+  const initializeChat = async () => {
+    try {
+      const response = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'INIT',
+          conversationHistory: []
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setMessages([{
+          id: Date.now(),
+          text: data.response,
+          isBot: true,
+          timestamp: new Date()
+        }])
+      }
+    } catch (error) {
+      console.error('Failed to initialize chat:', error)
+    }
+  }
+
   useEffect(() => {
     checkUserRole()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -35,6 +84,7 @@ export default function ChatbotPage() {
       initializeChat()
       setInitialized(true)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userRole, initialized])
 
   const scrollToBottom = () => {

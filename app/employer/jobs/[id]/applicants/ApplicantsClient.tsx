@@ -56,8 +56,30 @@ export default function ApplicantsClientPage() {
     newStatus: string
   }>({ show: false, applicantName: "", newStatus: "" })
 
+  const fetchApplicants = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch(`/api/employer/jobs/${jobId}/applicants`)
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch applicants")
+      }
+
+      const data = await response.json()
+      setApplicants(data.applicants || [])
+      setFilteredApplicants(data.applicants || [])
+    } catch (error) {
+      console.error("Error fetching applicants:", error)
+      setApplicants([])
+      setFilteredApplicants([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchApplicants()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId])
 
   useEffect(() => {

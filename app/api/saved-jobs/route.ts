@@ -21,8 +21,9 @@ export async function POST(request: Request) {
   try {
     // TODO: Insert into saved_jobs table or toggle
     return NextResponse.json({ success: true, saved: true })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
@@ -47,7 +48,8 @@ export async function DELETE(request: Request) {
   try {
     // TODO: Delete from saved_jobs table
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
