@@ -20,8 +20,6 @@ type ApplyFormProps = {
   screeningQuestions: ScreeningQuestion[]
 }
 
-type ResumeOption = "existing" | "new"
-
 type ScreeningAnswers = Record<string, string>
 
 export function ApplyForm({ jobId, jobTitle, companyName, screeningQuestions }: ApplyFormProps) {

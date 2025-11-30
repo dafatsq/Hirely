@@ -23,7 +23,18 @@ export default async function HomePage() {
   const isEmployer = userRole === 'employer'
 
   // Fetch recent jobs for non-employers
-  let recentJobs: any[] = []
+  type JobPosting = {
+    id: string
+    title: string
+    location: string
+    type: string
+    salary_min: number
+    salary_max: number
+    created_at: string
+    company_name: string
+    employment_type: string
+  }
+  let recentJobs: JobPosting[] = []
   if (!isEmployer) {
     const { data } = await supabase
       .from('job_postings')
@@ -159,7 +170,7 @@ export default async function HomePage() {
                         <span className="badge badge-blue">{job.type || 'Full-time'}</span>
                       </div>
                       <h4 className="font-semibold text-lg mb-2">{job.title}</h4>
-                      <p className="text-slate-600 text-sm mb-4">{(job.companies as any)?.name || 'Company'}</p>
+                      <p className="text-slate-600 text-sm mb-4">{(job.companies as { name?: string })?.name || 'Company'}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {job.skills?.slice(0, 3).map((skill: string, idx: number) => (
                           <span key={idx} className="text-xs px-2 py-1 bg-slate-100 rounded-full text-slate-600">

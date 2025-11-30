@@ -113,7 +113,7 @@ export default function SkillSelector({ selectedSkills, onSkillsChange, maxSkill
                // Fallback
                addSkill(query.trim())
             }
-          } catch (err) {
+          } catch {
              addSkill(query.trim())
           }
         }

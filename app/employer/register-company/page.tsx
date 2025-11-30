@@ -32,7 +32,7 @@ export default async function RegisterCompanyPage() {
 
   // Fetch current company if exists
   let currentCompany = null
-  // @ts-ignore
+  // @ts-expect-error Profile type may have complex structure
   const companyId = Array.isArray(profile?.employers) ? profile.employers[0]?.company_id : profile?.employers?.company_id
   if (companyId) {
     const { data: companyData } = await supabase

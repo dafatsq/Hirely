@@ -517,7 +517,7 @@ What would you like to know?`
             {
               parts: [
                 {
-                  text: `${SYSTEM_CONTEXT}\n\nUser Role: ${userRole}\n\nConversation History:\n${conversationHistory.map((m: any) => `${m.role}: ${m.content}`).join('\n')}\n\nUser: ${message}`
+                  text: `${SYSTEM_CONTEXT}\n\nUser Role: ${userRole}\n\nConversation History:\n${conversationHistory.map((m: { role: string; content: string }) => `${m.role}: ${m.content}`).join('\n')}\n\nUser: ${message}`
                 }
               ]
             }
