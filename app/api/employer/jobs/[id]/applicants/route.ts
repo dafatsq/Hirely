@@ -72,7 +72,7 @@ export async function GET(request: Request, context: RouteContext) {
     const userIds = applications?.map(app => app.user_id) || []
     
     if (userIds.length === 0) {
-      return NextResponse.json({ applications: [] })
+      return NextResponse.json({ applicants: [] })
     }
 
     const { data: users, error: usersError } = await supabase
@@ -113,7 +113,7 @@ export async function GET(request: Request, context: RouteContext) {
 
     console.log('Applications with users (final):', JSON.stringify(applicationsWithUsers, null, 2))
 
-    return NextResponse.json({ applications: applicationsWithUsers })
+    return NextResponse.json({ applicants: applicationsWithUsers })
   } catch (error) {
     console.error("Error fetching applicants:", error)
     return NextResponse.json(

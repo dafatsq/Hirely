@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import StarRatingDisplay from '@/components/StarRatingDisplay'
 import { Building, MapPin, Clock, Briefcase, Star, Flag, FileText } from 'lucide-react'
 
@@ -112,6 +113,25 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
   }
 
   const canRate = isOwner && application.status === 'accepted'
+
+  // Generate a short-lived signed URL so owners/admins can open private resumes
+  let resumeLink: string | null = null
+  if (application.resume_url && (isOwner || isAdmin)) {
+    try {
+      const adminSupabase = createAdminClient()
+      const { data: adminSignedUrl, error: adminError } = await adminSupabase.storage
+        .from('resumes')
+        .createSignedUrl(application.resume_url, 600)
+
+      if (adminSignedUrl?.signedUrl) {
+        resumeLink = adminSignedUrl.signedUrl
+      } else if (adminError) {
+        console.error('Failed to create resume download URL', adminError)
+      }
+    } catch (adminError) {
+      console.error('Failed to create resume download URL', adminError)
+    }
+  }
 
   const statusConfig: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pending', color: 'badge-blue' },
@@ -242,16 +262,16 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {application.resume_url && (
+          {resumeLink && (
             <div>
-              <Link
-                href={application.resume_url}
+              <a
+                href={resumeLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sky-600 hover:underline"
               >
                 View submitted resume
-              </Link>
+              </a>
             </div>
           )}
 
