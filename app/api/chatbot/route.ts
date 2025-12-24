@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 // This will be replaced with your actual Gemini API key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 const SYSTEM_CONTEXT = `You are HireLy Assistant, an expert guide for the HireLy job platform. Your role is to help users navigate, understand, and maximize their use of all platform features. Be conversational, helpful, and provide step-by-step guidance when needed.
 
@@ -505,12 +506,11 @@ What would you like to know?`
     }
 
     const geminiResponse = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': GEMINI_API_KEY,
         },
         body: JSON.stringify({
           contents: [
@@ -531,8 +531,26 @@ What would you like to know?`
     )
 
     if (!geminiResponse.ok) {
-      const errorData = await geminiResponse.json().catch(() => ({}))
+      const errorText = await geminiResponse.text().catch(() => '')
+      let errorData: unknown = {}
+      try {
+        errorData = errorText ? JSON.parse(errorText) : {}
+      } catch {
+        errorData = { raw: errorText }
+      }
+
       console.error('Gemini API error:', geminiResponse.status, errorData)
+      
+      // Handle quota exceeded error specifically
+      if (geminiResponse.status === 429) {
+        return NextResponse.json(
+          { 
+            response: 'I apologize, but the AI assistant is currently experiencing high demand and has reached its usage limit. Please try again in a few moments, or feel free to explore the platform on your own. You can find help documentation in the navigation menu.'
+          },
+          { status: 200 }
+        )
+      }
+      
       throw new Error(`Gemini API request failed: ${geminiResponse.status}`)
     }
 
