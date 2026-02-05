@@ -121,6 +121,58 @@ export default function LoginPage() {
             </button>
           </form>
 
+          <div className="mt-8 pt-8 border-t border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center px-2 py-1 bg-slate-50 rounded-md inline-block mx-auto w-full">
+              Demo Access
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin@hirely.com')
+                  setPassword('Admin123')
+                }}
+                className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+              >
+                <div className="text-left">
+                  <p className="font-medium text-slate-700">Administrator</p>
+                  <p className="text-slate-500">Full platform management</p>
+                </div>
+                <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('employer@hirely.com')
+                  setPassword('Employer123')
+                }}
+                className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+              >
+                <div className="text-left">
+                  <p className="font-medium text-slate-700">Employer</p>
+                  <p className="text-slate-500">Post jobs & manage applications</p>
+                </div>
+                <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('jobseeker@hirely.com')
+                  setPassword('Jobseeker123')
+                }}
+                className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+              >
+                <div className="text-left">
+                  <p className="font-medium text-slate-700">Job Seeker</p>
+                  <p className="text-slate-500">Browse jobs & manage profile</p>
+                </div>
+                <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
+              </button>
+            </div>
+          </div>
+
           <div className="mt-6 text-center text-sm text-slate-600">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="text-sky-500 hover:underline font-medium">
