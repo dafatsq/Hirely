@@ -1,13 +1,39 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { checkRateLimit, getClientIP, rateLimitExceeded } from '@/lib/rate-limit'
+import { uuidSchema } from '@/lib/validations'
+import { validateUUID, secureErrorResponse, logSecurityEvent } from '@/lib/security'
+import { z } from 'zod'
+
+const updateRatingSchema = z.object({
+  companyId: uuidSchema,
+})
 
 export async function POST(request: Request) {
-  try {
-    const { companyId } = await request.json()
+  // Rate limiting
+  const ip = getClientIP(request)
+  const rateLimitResult = checkRateLimit(ip, 'default')
+  if (!rateLimitResult.success) {
+    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+  }
 
-    if (!companyId) {
-      return NextResponse.json({ error: 'Company ID required' }, { status: 400 })
+  try {
+    let body: { companyId?: string }
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
     }
+
+    const result = updateRatingSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: result.error.issues },
+        { status: 400 }
+      )
+    }
+
+    const { companyId } = result.data
 
     const adminClient = createAdminClient()
 
@@ -20,8 +46,8 @@ export async function POST(request: Request) {
     const ratings = (data || []) as Array<{ rating: number }>
 
     if (ratingsError) {
-      console.error('Error fetching ratings:', ratingsError)
-      return NextResponse.json({ error: ratingsError.message }, { status: 500 })
+      logSecurityEvent('rating_fetch_error', { companyId }, 'error')
+      return secureErrorResponse('Failed to fetch ratings')
     }
 
     if (ratings && ratings.length > 0) {
@@ -38,8 +64,8 @@ export async function POST(request: Request) {
         .eq('id', companyId)
 
       if (updateError) {
-        console.error('Error updating company:', updateError)
-        return NextResponse.json({ error: updateError.message }, { status: 500 })
+        logSecurityEvent('rating_update_error', { companyId }, 'error')
+        return secureErrorResponse('Failed to update company rating')
       }
 
       return NextResponse.json({ 
@@ -65,10 +91,7 @@ export async function POST(request: Request) {
       total_ratings: 0
     })
 
-  } catch (error) {
-    console.error('Unexpected error:', error)
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : 'Internal server error' 
-    }, { status: 500 })
+  } catch {
+    return secureErrorResponse('Internal server error')
   }
 }

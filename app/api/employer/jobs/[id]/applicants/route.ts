@@ -1,13 +1,33 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { checkRateLimit, getClientIP, rateLimitExceeded } from "@/lib/rate-limit"
+import { validateUUID, secureErrorResponse, logSecurityEvent } from "@/lib/security"
+import { updateApplicationStatusSchema } from "@/lib/validations"
+import { z } from "zod"
 
 interface RouteContext {
   params: Promise<{ id: string }>
 }
 
+const patchApplicationSchema = z.object({
+  applicationId: z.string().uuid(),
+  status: z.enum(['pending', 'reviewing', 'accepted', 'rejected']),
+})
+
 export async function GET(request: Request, context: RouteContext) {
+  // Rate limiting
+  const ip = getClientIP(request)
+  const rateLimitResult = checkRateLimit(ip, 'default')
+  if (!rateLimitResult.success) {
+    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+  }
+
   const supabase = await createClient()
   const { id } = await context.params
+
+  // Validate UUID
+  const uuidError = validateUUID(id)
+  if (uuidError) return uuidError
 
   const {
     data: { user },
@@ -26,16 +46,11 @@ export async function GET(request: Request, context: RouteContext) {
       .single()
 
     if (jobError || !job) {
-      console.error('Job not found:', id, jobError)
       return NextResponse.json({ error: "Job not found" }, { status: 404 })
     }
 
-    console.log('Job found:', job)
-    console.log('Current user:', user.id)
-    console.log('Job employer:', job.employer_id)
-
     if (job.employer_id !== user.id) {
-      console.error('Forbidden: User is not the employer for this job')
+      logSecurityEvent('unauthorized_job_access', { userId: user.id, jobId: id }, 'warn')
       return NextResponse.json(
         { error: "Forbidden - You are not the employer for this job" },
         { status: 403 }
@@ -64,8 +79,7 @@ export async function GET(request: Request, context: RouteContext) {
       .order("applied_at", { ascending: false })
 
     if (error) {
-      console.error("Error fetching applications:", error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return secureErrorResponse("Failed to fetch applications")
     }
 
     // Fetch user details for each application
@@ -81,17 +95,12 @@ export async function GET(request: Request, context: RouteContext) {
       .in("id", userIds)
 
     if (usersError) {
-      console.error("Error fetching users:", usersError)
-      return NextResponse.json({ error: usersError.message }, { status: 500 })
+      return secureErrorResponse("Failed to fetch user details")
     }
-
-    console.log('Fetched users:', users)
-    console.log('User IDs from applications:', userIds)
 
     // Combine applications with user data
     const applicationsWithUsers = applications?.map(app => {
       const user = users?.find(u => u.id === app.user_id)
-      console.log(`Matching user for ${app.user_id}:`, user)
       
       // Flatten skills
       const skills = Array.isArray(user?.job_seekers) ? user.job_seekers[0]?.skills : []
@@ -111,21 +120,26 @@ export async function GET(request: Request, context: RouteContext) {
       }
     }) || []
 
-    console.log('Applications with users (final):', JSON.stringify(applicationsWithUsers, null, 2))
-
     return NextResponse.json({ applicants: applicationsWithUsers })
-  } catch (error) {
-    console.error("Error fetching applicants:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+  } catch {
+    return secureErrorResponse("Internal server error")
   }
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
+  // Rate limiting
+  const ip = getClientIP(request)
+  const rateLimitResult = checkRateLimit(ip, 'default')
+  if (!rateLimitResult.success) {
+    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+  }
+
   const supabase = await createClient()
   const { id } = await context.params
+
+  // Validate UUID
+  const uuidError = validateUUID(id)
+  if (uuidError) return uuidError
 
   const {
     data: { user },
@@ -136,14 +150,23 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   try {
-    const { applicationId, status } = await request.json()
+    // Validate input
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    }
 
-    if (!applicationId || !status) {
+    const result = patchApplicationSchema.safeParse(body)
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Application ID and status are required" },
+        { error: "Validation failed", details: result.error.issues },
         { status: 400 }
       )
     }
+
+    const { applicationId, status } = result.data
 
     // Verify user is employer for this job
     const { data: job } = await supabase
@@ -153,6 +176,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       .single()
 
     if (!job || job.employer_id !== user.id) {
+      logSecurityEvent('unauthorized_status_update', { userId: user.id, jobId: id }, 'warn')
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -164,15 +188,12 @@ export async function PATCH(request: Request, context: RouteContext) {
       .eq("job_posting_id", id)
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 })
+      return secureErrorResponse("Failed to update application status")
     }
 
+    logSecurityEvent('application_status_updated', { applicationId, status, updatedBy: user.id }, 'info')
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error("Error updating application status:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+  } catch {
+    return secureErrorResponse("Internal server error")
   }
 }

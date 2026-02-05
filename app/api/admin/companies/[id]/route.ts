@@ -1,15 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { checkRateLimit, getClientIP, rateLimitExceeded } from '@/lib/rate-limit'
+import { validateUUID, secureErrorResponse, logSecurityEvent } from '@/lib/security'
+import { updateCompanyVerificationSchema } from '@/lib/validations'
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Rate limiting
+  const ip = getClientIP(request)
+  const rateLimitResult = checkRateLimit(ip, 'admin')
+  if (!rateLimitResult.success) {
+    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+  }
+
   try {
     const supabase = await createClient()
     const { id } = await params
-    const { verified } = await request.json()
+
+    // Validate UUID
+    const uuidError = validateUUID(id)
+    if (uuidError) return uuidError
+
+    // Validate input
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+
+    const result = updateCompanyVerificationSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: result.error.issues },
+        { status: 400 }
+      )
+    }
+
+    const { verified } = result.data
 
     // Check if user is admin
     const {
@@ -27,12 +58,8 @@ export async function PUT(
       .single()
 
     if (profile?.role !== 'admin') {
+      logSecurityEvent('unauthorized_admin_access', { userId: user.id, endpoint: 'companies' }, 'warn')
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    // Validate input
-    if (typeof verified !== 'boolean') {
-      return NextResponse.json({ error: 'Invalid verified value' }, { status: 400 })
     }
 
     // Update company verification status using admin client
@@ -47,13 +74,13 @@ export async function PUT(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return secureErrorResponse('Failed to update company')
     }
 
+    logSecurityEvent('company_verification_updated', { companyId: id, verified, adminId: user.id }, 'info')
     return NextResponse.json({ success: true, data })
-  } catch (error) {
-    console.error('Error updating company verification:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch {
+    return secureErrorResponse('Internal server error')
   }
 }
 
@@ -61,9 +88,20 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Rate limiting
+  const ip = getClientIP(request)
+  const rateLimitResult = checkRateLimit(ip, 'admin')
+  if (!rateLimitResult.success) {
+    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+  }
+
   try {
     const supabase = await createClient()
     const { id } = await params
+
+    // Validate UUID
+    const uuidError = validateUUID(id)
+    if (uuidError) return uuidError
 
     // Check if user is admin
     const {
@@ -81,6 +119,7 @@ export async function DELETE(
       .single()
 
     if (profile?.role !== 'admin') {
+      logSecurityEvent('unauthorized_admin_access', { userId: user.id, endpoint: 'companies_delete' }, 'warn')
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -91,12 +130,12 @@ export async function DELETE(
       .eq('id', id)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return secureErrorResponse('Failed to delete company')
     }
 
+    logSecurityEvent('company_deleted', { companyId: id, adminId: user.id }, 'info')
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting company:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch {
+    return secureErrorResponse('Internal server error')
   }
 }

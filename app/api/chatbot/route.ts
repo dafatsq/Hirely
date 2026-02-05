@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { checkRateLimit, getClientIP, rateLimitExceeded } from '@/lib/rate-limit'
+import { chatMessageSchema } from '@/lib/validations'
+import { secureErrorResponse, logSecurityEvent } from '@/lib/security'
 
 // This will be replaced with your actual Gemini API key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
@@ -448,6 +451,14 @@ YOUR ROLE AS HIRELY ASSISTANT
 Remember: You have deep knowledge of every HireLy feature. Use this comprehensive context to give accurate, detailed, and helpful responses to any platform-related question. Always respond in plain text without any markdown formatting.`
 
 export async function POST(request: NextRequest) {
+  // Rate limiting for chatbot (moderate - AI calls are expensive)
+  const ip = getClientIP(request)
+  const rateLimitResult = checkRateLimit(ip, 'chatbot')
+  if (!rateLimitResult.success) {
+    logSecurityEvent('chatbot_rate_limit', { ip }, 'warn')
+    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+  }
+
   try {
     const supabase = await createClient()
     
@@ -539,7 +550,7 @@ What would you like to know?`
         errorData = { raw: errorText }
       }
 
-      console.error('Gemini API error:', geminiResponse.status, errorData)
+      logSecurityEvent('gemini_api_error', { status: geminiResponse.status }, 'error')
       
       // Handle quota exceeded error specifically
       if (geminiResponse.status === 429) {
@@ -564,13 +575,10 @@ What would you like to know?`
     return NextResponse.json({ response })
 
   } catch (error) {
-    console.error('Chatbot API error:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    logSecurityEvent('chatbot_error', { error: error instanceof Error ? error.message : 'Unknown' }, 'error')
+    // Don't expose internal error details to client
     return NextResponse.json(
-      { 
-        error: 'Sorry, I encountered an error. Please try again.',
-        details: errorMessage 
-      },
+      { error: 'Sorry, I encountered an error. Please try again.' },
       { status: 500 }
     )
   }
