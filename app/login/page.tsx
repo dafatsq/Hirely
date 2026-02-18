@@ -6,10 +6,17 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff } from 'lucide-react'
 
+const isDevelopment = process.env.NODE_ENV === 'development'
+
+const DEMO_ACCOUNTS = [
+  { email: 'admin@hirely.com', password: 'Admin123', role: 'Administrator', description: 'Full platform management' },
+  { email: 'employer@hirely.com', password: 'Employer123', role: 'Employer', description: 'Post jobs & manage applications' },
+  { email: 'jobseeker@hirely.com', password: 'Jobseeker123', role: 'Job Seeker', description: 'Browse jobs & manage profile' },
+]
+
 export default function LoginPage() {
   const router = useRouter()
   
-  // Redirect if already logged in
   useEffect(() => {
     const checkUser = async () => {
       const supabase = createClient()
@@ -79,6 +86,7 @@ export default function LoginPage() {
                 className="input"
                 placeholder="you@example.com"
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -95,11 +103,13 @@ export default function LoginPage() {
                   className="input pr-10"
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -121,57 +131,32 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 pt-8 border-t border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center px-2 py-1 bg-slate-50 rounded-md inline-block mx-auto w-full">
-              Demo Access
-            </h3>
-            <div className="grid grid-cols-1 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('admin@hirely.com')
-                  setPassword('Admin123')
-                }}
-                className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
-              >
-                <div className="text-left">
-                  <p className="font-medium text-slate-700">Administrator</p>
-                  <p className="text-slate-500">Full platform management</p>
-                </div>
-                <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('employer@hirely.com')
-                  setPassword('Employer123')
-                }}
-                className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
-              >
-                <div className="text-left">
-                  <p className="font-medium text-slate-700">Employer</p>
-                  <p className="text-slate-500">Post jobs & manage applications</p>
-                </div>
-                <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('jobseeker@hirely.com')
-                  setPassword('Jobseeker123')
-                }}
-                className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
-              >
-                <div className="text-left">
-                  <p className="font-medium text-slate-700">Job Seeker</p>
-                  <p className="text-slate-500">Browse jobs & manage profile</p>
-                </div>
-                <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
-              </button>
+          {isDevelopment && (
+            <div className="mt-8 pt-8 border-t border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center px-2 py-1 bg-slate-50 rounded-md inline-block mx-auto w-full">
+                Demo Access (Dev Only)
+              </h3>
+              <div className="grid grid-cols-1 gap-3">
+                {DEMO_ACCOUNTS.map((account) => (
+                  <button
+                    key={account.email}
+                    type="button"
+                    onClick={() => {
+                      setEmail(account.email)
+                      setPassword(account.password)
+                    }}
+                    className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+                  >
+                    <div className="text-left">
+                      <p className="font-medium text-slate-700">{account.role}</p>
+                      <p className="text-slate-500">{account.description}</p>
+                    </div>
+                    <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-6 text-center text-sm text-slate-600">
             Don&apos;t have an account?{' '}

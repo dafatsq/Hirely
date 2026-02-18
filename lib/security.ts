@@ -5,12 +5,8 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { checkRateLimit, getClientIP, rateLimitExceeded, RATE_LIMITS } from './rate-limit'
+import { checkRateLimit, getClientIP, rateLimitExceeded, RATE_LIMITS, rateLimitHeaders } from './rate-limit'
 import { ZodSchema, ZodError } from 'zod'
-
-// =============================================================================
-// TYPES
-// =============================================================================
 
 export interface AuthResult {
   user: { id: string; email: string } | null
@@ -22,64 +18,86 @@ export interface SecurityOptions {
   requireAuth?: boolean
   requiredRole?: 'admin' | 'employer' | 'jobseeker' | string[]
   rateLimit?: keyof typeof RATE_LIMITS
+  requireCSRF?: boolean
 }
 
-// =============================================================================
-// SECURE API WRAPPER
-// =============================================================================
+const SENSITIVE_FIELDS = ['password', 'token', 'secret', 'apiKey', 'api_key', 'authorization', 'cookie']
 
-/**
- * Wrap an API handler with security checks
- * Handles rate limiting, authentication, and authorization in one call
- */
+function sanitizeObject(obj: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(obj)) {
+    const lowerKey = key.toLowerCase()
+    if (SENSITIVE_FIELDS.some(field => lowerKey.includes(field))) {
+      sanitized[key] = '[REDACTED]'
+    } else if (typeof value === 'object' && value !== null) {
+      sanitized[key] = sanitizeObject(value as Record<string, unknown>)
+    } else {
+      sanitized[key] = value
+    }
+  }
+  return sanitized
+}
+
 export async function withSecurity<T>(
   request: Request,
   options: SecurityOptions,
   handler: (auth: AuthResult) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  // Rate limiting
   const ip = getClientIP(request)
   const rateLimitKey = options.rateLimit || 'default'
   const rateLimitResult = checkRateLimit(ip, rateLimitKey)
+  const headers = rateLimitHeaders(rateLimitResult)
   
   if (!rateLimitResult.success) {
-    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+    const response = rateLimitExceeded(rateLimitResult) as unknown as NextResponse
+    Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value))
+    return response
+  }
+
+  if (options.requireCSRF) {
+    const csrfError = validateCSRF(request)
+    if (csrfError) {
+      Object.entries(headers).forEach(([key, value]) => csrfError.headers.set(key, value))
+      return csrfError
+    }
   }
   
-  // Authentication
   const auth = await getAuthenticatedUser()
   
   if (options.requireAuth && !auth.user) {
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Unauthorized', message: 'Authentication required' },
       { status: 401 }
     )
+    Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value))
+    return response
   }
   
-  // Authorization
   if (options.requiredRole && auth.profile) {
     const allowedRoles = Array.isArray(options.requiredRole) 
       ? options.requiredRole 
       : [options.requiredRole]
     
     if (!allowedRoles.includes(auth.profile.role)) {
-      return NextResponse.json(
+      logSecurityEvent('unauthorized_access_attempt', { 
+        userId: auth.user?.id, 
+        requiredRole: options.requiredRole, 
+        actualRole: auth.profile.role 
+      }, 'warn')
+      const response = NextResponse.json(
         { error: 'Forbidden', message: 'Insufficient permissions' },
         { status: 403 }
       )
+      Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value))
+      return response
     }
   }
   
-  return handler(auth)
+  const result = await handler(auth)
+  Object.entries(headers).forEach(([key, value]) => result.headers.set(key, value))
+  return result
 }
 
-// =============================================================================
-// AUTHENTICATION HELPERS
-// =============================================================================
-
-/**
- * Get authenticated user and profile from Supabase
- */
 export async function getAuthenticatedUser(): Promise<AuthResult> {
   try {
     const supabase = await createClient()
@@ -105,29 +123,16 @@ export async function getAuthenticatedUser(): Promise<AuthResult> {
   }
 }
 
-/**
- * Check if user is admin
- */
 export async function isAdmin(): Promise<boolean> {
   const { profile } = await getAuthenticatedUser()
   return profile?.role === 'admin'
 }
 
-/**
- * Check if user is employer
- */
 export async function isEmployer(): Promise<boolean> {
   const { profile } = await getAuthenticatedUser()
   return profile?.role === 'employer'
 }
 
-// =============================================================================
-// INPUT VALIDATION
-// =============================================================================
-
-/**
- * Parse and validate request body with Zod schema
- */
 export async function validateBody<T>(
   request: Request,
   schema: ZodSchema<T>
@@ -162,9 +167,6 @@ export async function validateBody<T>(
   }
 }
 
-/**
- * Parse and validate URL search params with Zod schema
- */
 export function validateParams<T>(
   url: string,
   schema: ZodSchema<T>
@@ -200,38 +202,22 @@ export function validateParams<T>(
   }
 }
 
-// =============================================================================
-// ERROR HANDLING
-// =============================================================================
-
-/**
- * Create a secure error response that doesn't leak internal details
- */
 export function secureErrorResponse(
   message: string,
   status: number = 500
 ): NextResponse {
-  // Never expose internal error details to client
   return NextResponse.json(
     { error: message },
     { status }
   )
 }
 
-/**
- * Log error securely (server-side only, no sensitive data)
- */
 export function logSecurityEvent(
   event: string,
   details: Record<string, unknown>,
   level: 'info' | 'warn' | 'error' = 'info'
 ): void {
-  // In production, this would send to a logging service
-  // Remove sensitive fields before logging
-  const safeDetails = { ...details }
-  delete safeDetails.password
-  delete safeDetails.token
-  delete safeDetails.secret
+  const safeDetails = sanitizeObject(details)
   
   const logEntry = {
     timestamp: new Date().toISOString(),
@@ -240,28 +226,17 @@ export function logSecurityEvent(
     ...safeDetails,
   }
   
-  // Only log in development, use structured logging service in production
   if (process.env.NODE_ENV === 'development') {
     console[level]('[SECURITY]', JSON.stringify(logEntry))
   }
 }
 
-// =============================================================================
-// UUID VALIDATION
-// =============================================================================
-
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-/**
- * Validate UUID format to prevent injection
- */
 export function isValidUUID(id: string): boolean {
   return UUID_REGEX.test(id)
 }
 
-/**
- * Validate UUID and return error response if invalid
- */
 export function validateUUID(id: string): NextResponse | null {
   if (!isValidUUID(id)) {
     return NextResponse.json(
@@ -272,18 +247,10 @@ export function validateUUID(id: string): NextResponse | null {
   return null
 }
 
-// =============================================================================
-// CSRF PROTECTION
-// =============================================================================
-
-/**
- * Validate Origin/Referer header for CSRF protection
- */
 export function validateOrigin(request: Request): NextResponse | null {
   const origin = request.headers.get('origin')
   const referer = request.headers.get('referer')
   
-  // Allow requests with no origin (same-origin requests in some browsers)
   if (!origin && !referer) {
     return null
   }
@@ -299,6 +266,7 @@ export function validateOrigin(request: Request): NextResponse | null {
   const isValidReferer = referer && allowedOrigins.some(allowed => referer.startsWith(allowed))
   
   if (!isValidOrigin && !isValidReferer) {
+    logSecurityEvent('invalid_origin', { origin, referer }, 'warn')
     return NextResponse.json(
       { error: 'Invalid request origin' },
       { status: 403 }
@@ -306,4 +274,44 @@ export function validateOrigin(request: Request): NextResponse | null {
   }
   
   return null
+}
+
+export function validateCSRF(request: Request): NextResponse | null {
+  const method = request.method.toUpperCase()
+  
+  if (!['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+    return null
+  }
+
+  const originError = validateOrigin(request)
+  if (originError) {
+    return originError
+  }
+
+  const contentType = request.headers.get('content-type') || ''
+  if (contentType.includes('application/json')) {
+    return null
+  }
+
+  return null
+}
+
+export function generateSecureToken(length: number = 32): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  const randomValues = new Uint8Array(length)
+  crypto.getRandomValues(randomValues)
+  for (let i = 0; i < length; i++) {
+    result += chars[randomValues[i] % chars.length]
+  }
+  return result
+}
+
+export function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let result = 0
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return result === 0
 }
