@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff } from 'lucide-react'
 
-const isDevelopment = process.env.NODE_ENV === 'development'
-
 const DEMO_ACCOUNTS = [
   { email: 'admin@hirely.com', password: 'Admin123', role: 'Administrator', description: 'Full platform management' },
   { email: 'employer@hirely.com', password: 'Employer123', role: 'Employer', description: 'Post jobs & manage applications' },
@@ -131,32 +129,30 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {isDevelopment && (
-            <div className="mt-8 pt-8 border-t border-slate-100">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center px-2 py-1 bg-slate-50 rounded-md inline-block mx-auto w-full">
-                Demo Access (Dev Only)
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                {DEMO_ACCOUNTS.map((account) => (
-                  <button
-                    key={account.email}
-                    type="button"
-                    onClick={() => {
-                      setEmail(account.email)
-                      setPassword(account.password)
-                    }}
-                    className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
-                  >
-                    <div className="text-left">
-                      <p className="font-medium text-slate-700">{account.role}</p>
-                      <p className="text-slate-500">{account.description}</p>
-                    </div>
-                    <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
-                  </button>
-                ))}
-              </div>
+          <div className="mt-8 pt-8 border-t border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center px-2 py-1 bg-slate-50 rounded-md inline-block mx-auto w-full">
+              Demo Access
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {DEMO_ACCOUNTS.map((account) => (
+                <button
+                  key={account.email}
+                  type="button"
+                  onClick={() => {
+                    setEmail(account.email)
+                    setPassword(account.password)
+                  }}
+                  className="text-xs flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+                >
+                  <div className="text-left">
+                    <p className="font-medium text-slate-700">{account.role}</p>
+                    <p className="text-slate-500">{account.description}</p>
+                  </div>
+                  <span className="text-blue-600 font-medium group-hover:underline">Quick login →</span>
+                </button>
+              ))}
             </div>
-          )}
+          </div>
 
           <div className="mt-6 text-center text-sm text-slate-600">
             Don&apos;t have an account?{' '}
