@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { checkRateLimit, getClientIP, rateLimitExceeded, rateLimitHeaders } from '@/lib/rate-limit'
+import { checkRateLimit, getClientIP, rateLimitExceeded } from '@/lib/rate-limit'
 import { chatMessageSchema } from '@/lib/validations'
-import { secureErrorResponse, logSecurityEvent, validateBody } from '@/lib/security'
+import { secureErrorResponse, logSecurityEvent } from '@/lib/security'
 
+// This will be replaced with your actual Gemini API key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash'
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 const SYSTEM_CONTEXT = `You are HireLy Assistant, an expert guide for the HireLy job platform. Your role is to help users navigate, understand, and maximize their use of all platform features. Be conversational, helpful, and provide step-by-step guidance when needed.
 
@@ -450,28 +451,24 @@ YOUR ROLE AS HIRELY ASSISTANT
 Remember: You have deep knowledge of every HireLy feature. Use this comprehensive context to give accurate, detailed, and helpful responses to any platform-related question. Always respond in plain text without any markdown formatting.`
 
 export async function POST(request: NextRequest) {
+  // Rate limiting for chatbot (moderate - AI calls are expensive)
   const ip = getClientIP(request)
   const rateLimitResult = checkRateLimit(ip, 'chatbot')
-  
-  const rateHeaders = rateLimitHeaders(rateLimitResult)
-  
   if (!rateLimitResult.success) {
     logSecurityEvent('chatbot_rate_limit', { ip }, 'warn')
-    const response = rateLimitExceeded(rateLimitResult) as unknown as NextResponse
-    Object.entries(rateHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value)
-    })
-    return response
+    return rateLimitExceeded(rateLimitResult) as unknown as NextResponse
   }
 
   try {
     const supabase = await createClient()
     
+    // Check authentication
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: rateHeaders })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Check user role
     const { data: profile } = await supabase
       .from('users')
       .select('role')
@@ -479,66 +476,59 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profile?.role === 'admin') {
-      return NextResponse.json({ error: 'Admins cannot use chatbot' }, { status: 403, headers: rateHeaders })
+      return NextResponse.json({ error: 'Admins cannot use chatbot' }, { status: 403 })
     }
 
-    const validation = await validateBody(request, chatMessageSchema)
-    if (validation.error) {
-      return NextResponse.json(validation.error, { headers: rateHeaders })
+    const { message, userRole, conversationHistory } = await request.json()
+
+    if (!message || typeof message !== 'string') {
+      return NextResponse.json({ error: 'Invalid message' }, { status: 400 })
     }
 
-    const { message, conversationHistory } = validation.data
-
-    const userRole = profile?.role || 'jobseeker'
-
+    // Handle initialization message
     if (message === 'INIT') {
       const greeting = userRole === 'employer' 
         ? `Hello! I'm HireLy Assistant, your guide to managing your company and job postings on HireLy. I can help you with:
 
-- Creating and verifying your company profile
-- Posting and managing job listings
-- Reviewing applications
-- Understanding the platform features
+• Creating and verifying your company profile
+• Posting and managing job listings
+• Reviewing applications
+• Understanding the platform features
 
 What would you like to know?`
         : `Hello! I'm HireLy Assistant, your guide to finding jobs and navigating HireLy. I can help you with:
 
-- Finding and applying to jobs
-- Managing your applications
-- Building your profile
-- Saving jobs for later
-- Understanding the platform features
+• Finding and applying to jobs
+• Managing your applications
+• Building your profile
+• Saving jobs for later
+• Understanding the platform features
 
 What would you like to know?`
 
-      return NextResponse.json({ response: greeting }, { headers: rateHeaders })
+      return NextResponse.json({ response: greeting })
     }
 
+    // Gemini API integration
     if (!GEMINI_API_KEY) {
-      logSecurityEvent('chatbot_api_key_missing', {}, 'error')
       return NextResponse.json({ 
-        error: 'Service temporarily unavailable' 
-      }, { status: 503, headers: rateHeaders })
+        error: 'Gemini API key not configured' 
+      }, { status: 500 })
     }
-
-    const formattedHistory = (conversationHistory || [])
-      .map((m) => `${m.role}: ${m.content}`)
-      .join('\n')
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': GEMINI_API_KEY,
         },
         body: JSON.stringify({
           contents: [
             {
               parts: [
                 {
-                  text: `${SYSTEM_CONTEXT}\n\nUser Role: ${userRole}\n\nConversation History:\n${formattedHistory}\n\nUser: ${message}`
+                  text: `${SYSTEM_CONTEXT}\n\nUser Role: ${userRole}\n\nConversation History:\n${conversationHistory.map((m: { role: string; content: string }) => `${m.role}: ${m.content}`).join('\n')}\n\nUser: ${message}`
                 }
               ]
             }
@@ -546,27 +536,29 @@ What would you like to know?`
           generationConfig: {
             temperature: 0.7,
             maxOutputTokens: 1024,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          ],
+          }
         }),
-        signal: AbortSignal.timeout(30000),
       }
     )
 
     if (!geminiResponse.ok) {
+      const errorText = await geminiResponse.text().catch(() => '')
+      let errorData: unknown = {}
+      try {
+        errorData = errorText ? JSON.parse(errorText) : {}
+      } catch {
+        errorData = { raw: errorText }
+      }
+
       logSecurityEvent('gemini_api_error', { status: geminiResponse.status }, 'error')
       
+      // Handle quota exceeded error specifically
       if (geminiResponse.status === 429) {
         return NextResponse.json(
           { 
-            response: 'I apologize, but the AI assistant is currently experiencing high demand. Please try again in a few moments, or explore the platform on your own.'
+            response: 'I apologize, but the AI assistant is currently experiencing high demand and has reached its usage limit. Please try again in a few moments, or feel free to explore the platform on your own. You can find help documentation in the navigation menu.'
           },
-          { status: 200, headers: rateHeaders }
+          { status: 200 }
         )
       }
       
@@ -580,13 +572,14 @@ What would you like to know?`
       throw new Error('Invalid response from Gemini API')
     }
 
-    return NextResponse.json({ response }, { headers: rateHeaders })
+    return NextResponse.json({ response })
 
   } catch (error) {
     logSecurityEvent('chatbot_error', { error: error instanceof Error ? error.message : 'Unknown' }, 'error')
+    // Don't expose internal error details to client
     return NextResponse.json(
       { error: 'Sorry, I encountered an error. Please try again.' },
-      { status: 500, headers: rateHeaders }
+      { status: 500 }
     )
   }
 }
