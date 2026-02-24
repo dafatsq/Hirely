@@ -5,7 +5,7 @@ import { chatMessageSchema } from '@/lib/validations'
 import { secureErrorResponse, logSecurityEvent, validateBody } from '@/lib/security'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-pro'
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-flash'
 
 const SYSTEM_CONTEXT = `You are HireLy Assistant, an expert guide for the HireLy job platform. Your role is to help users navigate, understand, and maximize their use of all platform features. Be conversational, helpful, and provide step-by-step guidance when needed.
 
