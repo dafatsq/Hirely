@@ -79,7 +79,7 @@ export default async function HomePage() {
           <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
             {isEmployer 
               ? 'Post jobs, manage applications, and hire top talent for your company.'
-              : 'Discover thousands of job opportunities with all the information you need. It&apos;s your future.'
+              : 'Discover thousands of job opportunities with all the information you need.'
             }
           </p>
 
